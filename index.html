@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>CWBe: Creative Writing Browser editor</title>
+</head>
+<body>
+	<header>
+		<h1></h1>
+		<div id="draft-num"></div>
+	</header>
+	<nav>
+		<div class="mode-btns">
+			<label for="pmod">
+				<input id="pmod" type="radio" name="editor-modes">
+				pmod
+			</label>
+			<label for="wmod">
+				<input id="wmod" type="radio" name="editor-modes">
+				wmod
+			</label>
+			<label for="emod">
+				<input id="emod" type="radio" name="editor-modes">
+				emod
+			</label>
+		</div>
+		<div class="view-container"></div>
+	</nav>
+	<main class="none"></main>
+	<aside id="edit-note-1"></aside>
+	<aside id="edit-note-2"></aside>
+	<footer>
+		<p><a href="https://creativecommons.org/chooser/" target="_blank">Choose a license</a></p>
+		<p><a href="https://github.com/SmKou/creative-writing-browser-editor">Creative Writing Browser editor</a> © 2025 by <a href="https://github.com/SmKou">Sm Kou</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></p>
+	</footer>
+	<script type="module" src="/src/main.js"></script>
+</body>
+</html>
