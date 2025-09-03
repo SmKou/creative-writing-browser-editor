@@ -4,6 +4,8 @@
 
 Creative Writing Browser editor (CWBe) is a web app for creative writing and management in the browser, mainly offline. Works are marked by draft, chapters, paragraphs, and sentences, as well as notes, characters, maps, the outline and timelines. In explorative writing, there's no knowing what will come out, so even when something is deleted, one might want to retain it for later, whether to add it or refer it. Every piece should be able to connect with entities in other aspects of the work, such as writing several paragraphs on a character's backstory, only to remove the text for now.
 
+Concern: Sharing of local or copyright data
+
 ### Features List
 
 **Writing mode**
