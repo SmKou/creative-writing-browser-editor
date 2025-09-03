@@ -2,47 +2,200 @@
 
 ## Description
 
-Creative Writing Browser editor (CWBe) is a web app for creative writing and management in the browser, mainly offline. Works are marked by draft, chapters, paragraphs, and sentences, as well as notes, characters, maps, the outline and timelines. In explorative writing, there's no knowing what will come out, so even when something is deleted, one might want to retain it for later, whether to add it or refer it. Every piece should be able to connect with entities in other aspects of the work, such as writing several paragraphs on a character's backstory, only to remove the text for now.
+Creative Writing Browser editor (CWBe) is a browser-based editor for writing, explorative creative writing in particular, and management of world-building notes. Most writing editors are designed for structured writing as in outlines, even encouraging the use of formulas, and while there is software and web apps for world-building, they're mainly for reference and note-keeping. The best that can be asked of either is a side-by-side interface. In explorative creative writing, or pantsing, there's a lot of writing that gets recycled or saved separately for later use or reference. If these pieces could be saved the same as world-building notes or in conjunction with an outline and timelines, it'd be easier for the writer to build progressively through exploration, not having to eventually resort to the outline for thinking and plotting.
 
-Concern: Sharing of local or copyright data
+**Concerns**
+1. Remove segments and make notes of them
+2. Text navigation
+3. Share-view
+4. Features: outline, timelines, world-building
+   - profiles
+   - maps
+   - rules
+   - languages
+
+Issue: Sharing of local or copyright data
 
 ### Features List
 
-**Writing mode**
-- load content of work's draft
-- start new draft (from existing content)
-- add, insert, delete, edit, and move text around
-- remove content (not connection)
+**Universal**
+- UI: main (3-1), side-by-side (1-1), textarea
+- Commands: select, undo, redo, join
+  Flags: -n (note)
 
-**Planning mode**
-- dashboard of work: drafts, management features
-- character profiles: person, people, places
-- maps: geographic, demographic, distance calculation
-- world: rules
-- language: lexicon, glossary, guide
-- outline: scenes (and segments)
-- timelines: person, people, places
+| command | action                            | shorthand |
+|---------|-----------------------------------|-----------|
+| select  | remember for input of next cmd    | sel       |
+| mselect | select multiple                   | ms        |
+|         | does not use same store as select |           |
+| undo    | undo last change                  | un        |
+| redo    | redo last change                  | re        |
+| join    | connect entity to entity          | jn        |
+|         | -n: add a note to connection      |           |
+| unjoin  | disconnect entity from entity     | ujn       |
+| history | view history of all changes       | hst       |
+|         | version control of feature        | vc        |
 
-**Editing mode**
-- markup
-- comment
-- view
+	Note: segment
+	- chapter
+	- scene
+	- parargraph
+	- sentence
+	- word
 
-### Commands
-**entity**: a singular piece of information in a management feature, ie. profile, map, rule, lang, event or timeline, segment or outline
-**segment**: a piece of writing at varying scopes (sentence, paragraph, section, chapter)
+	Note: How to refer segments
+	1. d-c-p-s: draft-chapter-paragraph-sentence
+	2. t-e: timeline-event
+	3. scn: scene
 
-|  cmd | cmd name   | cmd action                                 |
-------------------------------------------------------------------
-|  sel |     select | select info to be joined or moved together |
-| msel |    mselect | multiple select: select info in arrays     |
-| find |       find | search active window for keyword(s)        |
-| fall |    findall | multiple find: search for all instances    |
-| goto |    go/open | change focus to another feature or segment |
-|  mov |       move | move a segment (create new draft)          |
-|   cp | copy-paste | copy-paste segment                         |
-|  add | add-insert | create new entity, or write                |
-|   jn |       join | connect two entities
+| command | interface                         |
+|---------|-----------------------------------|
+| wmod    | writing mode                      |
+| pmod    | planning mode                     |
+| emod    | editing mode                      |
+| sbs     | side-by-side views                |
+| main    | main view w/out aside             |
+| exp     | expand aside                      |
+| cls     | collapse (close) aside            |
+
+**Writing mode**: focus on writing
+- UI: main (writing)
+- Features:
+- Commands: create, add, insert, copy, remove
+
+| command | action                            | shorthand |
+|---------|-----------------------------------|-----------|
+| create  | draft, chapter, scene             | new       |
+| add     | free write from last segment      | add       |
+| insert  | free write from segment location  | ins       |
+| rewrite | overwrite from segment location   | rw        |
+| copy    | duplicate                         | cp        |
+| remove  | delete or store segment(s)        | rm        |
+|         | -n: form unjoined segment w/ note |           |
+|         | -j: join entity                   |           |
+
+**Planning mode**: focus on management of information and text
+- UI: main (feature || dashboard)
+- Features: outline, timelines, profiles, maps, rules, languages
+- Commands: move, find, fall (find_all), replace, add, update
+
+| command | action                            | shorthand |
+|---------|-----------------------------------|-----------|
+| move    | move segments                     | mv        |
+| find    | find first instance in main       | fn        |
+| findall | find all instances in main        | fall      |
+| replace | replace instance(s)               | rp        |
+| create  | add instance of feature           | new       |
+| name    | entitle segment or entity         | nm        |
+
+	Note:
+	- outline: scenes (and segments)
+	- timelines: encounters and events
+	  - scale: person, people, places
+	  - intersections
+	- character profiles: person, people, and places
+	  - person: identity, appearance, personality and manner
+	  - people: beliefs, customs, opinions
+	  - places:
+	- maps: upload and-or draw
+	  - geographic
+	  - demographic
+	  - distance calculation
+	  - locations between timelines and characters
+	- rules
+	- languages
+	  - lexicon
+	  - grammar guide
+	  - glossary
+
+**Editing mode**: focus on collection of feedback
+- UI: side-by-side (writing : editing)
+- Features: view, comment, markup
+- Commands: spell, strike, segment, mark, note
+
+| command | action                            | shorthand |
+|---------|-----------------------------------|-----------|
+| spell   | spelling or proper term           | sp        |
+| strike  | remove                            | str       |
+| segment | separation or delineate segments  | seg       |
+| mark    | changes: insert, style, move      |           |
+| note    | add comment                       |           |
+| save    | generate downloadable file        |           |
+|         | used to send edit notes           |           |
+
+### Input Processing
+- cmd format: cmd orig dest
+- keys
+  - ENTER: add paragraph to writing
+  - .|?|!: add sentence to writing
+
+## Storage
+Directory: _storage (.gitignore)
+
+Each use of the Creative Writing Browser editor requires its own _storage and storage.js, meaning if forked, storage is up to the developer to setup, structure, and operate.
+
+Purpose: enable local development for singular uses and to use github pages for viewing and editing
+
+Setup: editor available as homepage with writing and planning modes available, separate view provided for editing mode open to visitors on github pages, pages for view generated by publish.js in storage.js (node script)
+
+### LocalStorage
+Purpose: storage of selections, last points, and settings
+
+**Use of localstorage**
+```js
+const storage = localStorage
+storage.setItem("username", "JohnDoe")
+storage.getItem("username")
+storage.removeItem("username")
+storage.clear()
+```
+
+### IndexedDB
+Purpose: storage of writing and world-building data
+
+**Open|Create database**
+```js
+const req = indexedDB.open("MyDatabase", 1)
+req.onupgradeneeded = e => {
+	const db = e.target.result
+	if (!db.objectStoreNames.contains("users")) {
+		db.createObjectStore("users", { keyPath: "id" })
+	}
+}
+```
+
+**Add data**
+```js
+req.onsuccess = e => {
+	const db = e.target.result
+	const txn = db.transaction("users", "readwrite")
+	const store = txn.ObjectStore("users")
+	store.add({ id: 1, name: "Alice", age: 25 })
+	txn.oncomplete = () => console.log("User added")
+}
+```
+
+**Read data**
+```js
+req.onsuccess = e => {
+	const db = e.target.result
+	const txn = db.transaction("users", "readonly")
+	const store = txn.ObjectStore("users")
+	const get_req = store.get(1)
+	get_req.onsuccess = () => console.log(get_req.result)
+}
+```
+
+**Delete data**
+```js
+req.onsuccess = e => {
+	const db = e.target.result
+	const txn = db.transaction("users", "readwrite")
+	const store = txn.ObjectStore("users")
+	store.delete(1)
+	txn.oncomplete = () => console.log("User deleted")
+}
+```
 
 ## License
 
