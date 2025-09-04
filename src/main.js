@@ -18,17 +18,3 @@ document.getElementById("cmd-ln").addEventListener("keydown", e => {
 			break;
 	}
 })
-
-// <span id="end-here" class="animate__animated animate__flash">&#10566;</span>
-setTimeout(() => {
-	const span = document.createElement("span")
-	span.setAttribute("class", "animate__animated animate__flash")
-	span.id = "end-here"
-	span.innerHTML = "&#10566;"
-	document.getElementById("start-here").after(span)
-
-	setTimeout(() => {
-		span.remove()
-		document.querySelector("#start-here + span").after(span)
-	}, 1000)
-}, 3000)
