@@ -16,6 +16,74 @@ Creative Writing Browser editor (CWBe) is a browser-based editor for writing, ex
 
 Issue: Sharing of local or copyright data
 
+### Writing mode
+Page: /
+
+Focus: writing
+
+In writing mode, user can navigate and edit their draft of a story. All other features are for reference only. The most the user can use of the other features is notes on changed or removed text, and adding or copying text from a feature.
+
+```html
+<h1>Story Title</h1>
+<div id="draft-num">n</div>
+<h2 id="<chapter-uuid>">Chapter title</h2>
+<h3>Scene title</h3>
+<ol id="<scene-uuid>">
+	<li>
+		<ol id="<paragraph-uuid">
+			<li id="<sentence-uuid>"></li>
+		</ol>
+	</li>
+</ol>
+```
+Note: if no title = untitled_n (by scope)
+
+Note: if no scene title, outer ol uses chapter-uuid
+
+Note: scene titles are ignored in generation unless noted otherwise (scene_titles: true)
+
+Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from one starting location to an ending location (start inclusive, end exclusive)
+
+	Commands
+	- create
+
+	  new <c|s> <[chapter|scene]-title>
+
+	  :: new chapter or scene
+	- select
+
+	  slt <loc:loc>
+
+	  :: set reference location for next non-select action, does not require selection all at once
+	- mselect
+
+	  msl <loc:loc>
+
+	  :: set reference locations for next non-mselect action, does not require selection all at once
+	- add
+
+	  :: write from end of current chapter (and scene)
+		- _title <c|scn> <title>
+
+		  :: add title by scope
+		- _note <loc:loc> <[feature]-destination> <description>
+
+		  :: add note on location in feature
+		- _todo <loc:loc> <description>
+
+		  :: add to-do note to outline on location
+		- _container <loc:loc>
+
+		  :: add chapter or scene containing location
+	- insert <loc> :: write and insert before location
+	- rewrite <loc:loc> :: write from and overwrite until location
+	- copy <loc:loc> <loc:loc> :: duplicate from starting location to ending location
+	- move <loc:loc> <loc:loc> :: move from starting location to ending location
+	- find "" <a|c|s|p> :: find first instance of "" in all, chapter, scene, or paragraph after selected
+	- find_all "" <a|c|s|p> :: find all instances of "" in all, chapter, scene, or paragraph
+	- replace "" "" <a|c|s|p> <loc:loc>:: replace first instance of "" with "" after selected, add location to change selected used for reference
+	- replace all "" "" <a|c|s|p> <loc:loc> :: replace all instances of "" with "" in all, chapter, scene, or paragraph, add location to change selected used for reference
+
 ### Features List
 
 **Universal**
