@@ -43,36 +43,56 @@ header {
 }
 
 main {
-	position: relative;
-	border-left: 1px solid deeppink;
-	border-right: 1px solid deeppink;
-	color: black;
-	background: snow;
 
-	article {
+	&.dark {
+		color: white;
+		background: black;
+
+		textarea {
+			border-top-color: white;
+			color: white;
+			background: black;
+		}
+	}
+
+	section {
+		position: relative;
+		width: 75vw;
+		max-width: 960px;
 		height: 100%;
-		padding: 8px;
-		overflow-y: scroll;
+		border-left: 1px solid deeppink;
+		border-right: 1px solid deeppink;
+		color: black;
+		background: snow;
 
-		.sentence-break { margin: 0 }
+		article {
+			height: 100%;
+			padding: 8px;
+			overflow-y: scroll;
 
-		.sentence-end {
-			position: relative;
-			display: flex;
-			flex-direction: column;
-
-			.sentence-n {
-				position: absolute;
-				top: -2px;
-				font-size: 10px;
-				display: none;
+			div {
+				margin-bottom: 12px;
 			}
 
-			&.show-s-n .sentence-n { display: initial }
-			&.show-s-n .sentence-mark { display: none }
-		}
+			.sentence-break { margin: 0 }
 
-		#cursor {
+			.sentence-end {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+
+				.sentence-n {
+					position: absolute;
+					top: -2px;
+					font-size: 10px;
+					display: none;
+				}
+
+				&.show-s-n .sentence-n { display: initial }
+				&.show-s-n .sentence-mark { display: none }
+			}
+
+			#cursor {
 			margin: 2px;
 			padding-top: 4px;
 			display: inline-block;
@@ -81,56 +101,49 @@ main {
 			font-family: monospace;
 			vertical-align: center;
 			animation: blink 1s infinite;
+			}
+
+			@keyframes blink {
+				0% { color: transparent }
+				100% { color: deeppink }
+			}
 		}
 
-		@keyframes blink {
-			0% { color: transparent }
-			100% { color: deeppink }
+		textarea {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			max-height: 3.2lh;
+			border: none;
+			border-width: 3px;
+			border-style: solid;
+			border-color: deeppink deeppink transparent deeppink;
+			field-sizing: content;
+			resize: none;
+			font-size: 15px;
+
+			&:focus { outline: none }
 		}
 	}
 
-	textarea {
-		position: absolute;
-		bottom: 0;
-		width: 100%;
-		max-height: 3.2lh;
-		border: none;
-		border-width: 3px;
-		border-style: solid;
-		border-color: deeppink deeppink transparent deeppink;
-		field-sizing: content;
-		resize: none;
-		font-size: 15px;
+	aside { display: none }
 
-		&:focus { outline: none }
+	&.side-by-side {
+		display: flex;
+		align-items: center;
+	}
+
+	&.side-by-side section,
+	&.side-by-side aside {
+		display: block;
+		width: 50vw;
+		height: calc(100vh - 84px);
+		display: inline-block;
 	}
 }
 
-.dark {
-	color: white;
-	background: black;
 
-	textarea {
-		border-top-color: white;
-		color: white;
-		background: black;
-	}
-}
 
-.focus-view {
-	width: 75vw;
-	max-width: 960px;
-	height: calc(100vh - 84px);
-}
-
-aside { display: none }
-
-.side-by-side,
-.side-by-side + aside {
-	width: 50vw;
-	height: calc(100vh - 84px);
-	display: inline-block;
-}
 
 footer {
 	width: 100%;
