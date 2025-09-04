@@ -1,5 +1,8 @@
+import { v4 as uuid } from 'uuid'
 import 'animate.css'
 import './style.css'
+
+console.log(uuid())
 
 document.addEventListener("click", () => document.getElementById("cmd-ln").focus())
 
