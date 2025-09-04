@@ -16,6 +16,12 @@ Creative Writing Browser editor (CWBe) is a browser-based editor for writing, ex
 
 Issue: Sharing of local or copyright data
 
+### User Interactions
+All interaction is through the textarea. Clicking anywhere else only refocuses on the textarea for entry.
+
+- ENTER: new paragraph
+- .|?|!: new sentence
+
 ### Writing mode
 Page: /
 
@@ -44,17 +50,24 @@ Note: scene titles are ignored in generation unless noted otherwise (scene_title
 
 Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from one starting location to an ending location (start inclusive, end exclusive)
 
-	Commands
+**Commands**
+
 	- create
 	  new <c|s> <[chapter|scene]-title>
 	  :: new chapter or scene
 
 	- select
 	  slt <loc:loc>
-	  :: set reference location for next non-select action, does not require selection all at once
+	  :: set reference location for next non-select action
+	  does not require selection all at once
 	- mselect
 	  msl <loc:loc>
-	  :: set reference locations for next non-mselect action, does not require selection all at once
+	  :: set reference locations for next non-mselect action
+	  does not require selection all at once
+	- deselect
+	  dsl
+	  :: clear selected, both select and mselect
+	  defers initial locations to current location for next actions
 
 	- add
 	  :: write from end of current chapter (and scene)
@@ -89,10 +102,15 @@ Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from o
 	  :: find all instances of "" in all, chapter, scene, or paragraph
 	- replace
 	  rpc "" "" <a|c|s|p> <loc:loc>
-	  :: replace first instance of "" with "" after selected, add location to change selected used for reference
+	  :: replace first instance of "" with "" after selected
+	  add location to change selected used for reference
 	- replace all
 	  ra "" "" <a|c|s|p> <loc:loc>
-	  :: replace all instances of "" with "" in all, chapter, scene, or paragraph, add location to change selected used for reference
+	  :: replace all instances of "" with "" in all, chapter, scene, or paragraph
+	  add location to change selected used for reference
+Note: only locations for destinations are needed if using the selected or current context
+
+Note: current context will always shift to destination of an action
 
 ### Features List
 
