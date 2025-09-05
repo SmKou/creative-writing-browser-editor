@@ -1,6 +1,5 @@
 * {
 	box-sizing: border-box;
-
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 	&::-webkit-scrollbar { display: none }
@@ -55,75 +54,35 @@ main {
 		}
 	}
 
-	section {
+	article {
 		position: relative;
 		width: 75vw;
+		height: 100%;
 		max-width: 960px;
 		height: calc(100vh - 84px);
+		padding: 8px;
+		overflow-y: scroll;
 		border-left: 1px solid deeppink;
 		border-right: 1px solid deeppink;
 		color: black;
 		background: snow;
 
-		article {
-			height: 100%;
-			padding: 8px;
-			overflow-y: scroll;
+		.paragraph ol {
+			padding: 32px;
 
-			div {
-				margin-bottom: 12px;
-			}
-
-			.sentence-break { margin: 0 }
-
-			.sentence-end {
-				position: relative;
-				display: flex;
-				flex-direction: column;
-
-				.sentence-n {
-					position: absolute;
-					top: -2px;
-					font-size: 10px;
-					display: none;
-				}
-
-				&.show-s-n .sentence-n { display: initial }
-				&.show-s-n .sentence-mark { display: none }
-			}
-
-			#cursor {
-			margin: 2px;
-			padding-top: 4px;
-			display: inline-block;
-			color: deeppink;
-			font-size: 24px;
-			font-family: monospace;
-			vertical-align: center;
-			animation: blink 1s infinite;
-			}
-
-			@keyframes blink {
-				0% { color: transparent }
-				100% { color: deeppink }
-			}
+			li { padding: 0 12px }
 		}
+	}
 
-		textarea {
-			position: absolute;
-			bottom: 0;
-			width: 100%;
-			max-height: 3.2lh;
-			border: none;
-			border-width: 3px;
-			border-style: solid;
-			border-color: deeppink deeppink transparent deeppink;
-			field-sizing: content;
-			resize: none;
-			font-size: 15px;
+	textarea {
+		width: 100%;
+		max-height: 3.2lh;
+		border: 2px solid deeppink;
+		field-sizing: content;
+		resize: none;
+		font-size: 15px;
 
-			&:focus { outline: none }
-		}
+		&:focus { outline: none }
 	}
 
 	aside { display: none }
@@ -135,7 +94,7 @@ main {
 		aside { height: calc(100vh - 84px) }
 	}
 
-	&.side-by-side section,
+	&.side-by-side article,
 	&.side-by-side aside {
 		display: block;
 		width: 50vw;
