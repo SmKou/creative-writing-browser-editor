@@ -16,12 +16,6 @@ Creative Writing Browser editor (CWBe) is a browser-based editor for writing, ex
 
 Issue: Sharing of local or copyright data
 
-### User Interactions
-All interaction is through the textarea. Clicking anywhere else only refocuses on the textarea for entry.
-
-- ENTER: new paragraph
-- .|?|!: new sentence
-
 ### Writing mode
 Page: /
 
@@ -42,16 +36,18 @@ In writing mode, user can navigate and edit their draft of a story. All other fe
 	</li>
 </ol>
 ```
-If no title for a segment, other than for paragraphs and sentences which have no titles, default is untitled_n (by scope). For the outermost <ol>, if there's no scene identifier (scene-uuid), default is chapter identifier (chapter-uuid). When a draft is generated, scene titles are ignored unless otherwise specified, ie. scene_titles: true, and should there be separation of scenes, the segments will be separated by an empty line or line break.
+
+Segment: piece of writing, ie chapter, scene, paragraph, or sentence
+
+If no title for a segment, other than for paragraphs and sentences which have no titles, default is untitled_n (by scope). For the outermost ordered list, if there's no scene identifier (scene-uuid), default is chapter identifier (chapter-uuid). When a draft is generated, scene titles are ignored unless otherwise specified, ie. scene_titles: true, and should there be separation of scenes, the segments will be separated by an empty line or line break.
 
 Location <loc>
 <br>d(num)-c(num)-n(num)-p(num)-s(num): draft-chapter-scene-paragraph-sentence
 <br>does not have to be complete in use
 
 Location range <loc:loc>
-<br>
-
-Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from one starting location to an ending location (start inclusive, end exclusive)
+<br>start from location (inclusive) and end at location (exclusive)
+<br>only locations for destinations are needed if using the selected or current context, and current context will always shift to the destination of an action.
 
 **Commands**
 
@@ -111,119 +107,34 @@ Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from o
 	  ra "" "" <a|c|s|p> <loc:loc>
 	  :: replace all instances of "" with "" in all, chapter, scene, or paragraph
 	  add location to change selected used for reference
-Only locations for destinations are needed if using the selected or current context. Current context will always shift to destination of an action.
 
-segment: part of writing (chapter, scene, paragraph, sentence)
+**Sample interaction**
 
-location:
+	opn Lover in the Flesh
+	+ ENTER
+	- get last: chapter, scene
+	- scene = paragraph-uuid[]
+	- paragraph = segment-uuid[]
+	- article:
+	  h2, chapter title
+	  ol: chapter
+	  ol: scene
+	  ol: paragraph
+	  li: sentence
+
+	new chapter
+	+ ENTER
+	- clear article
+	- generate chapter-uuid, paragraph-uuid, sentence-uuid
+	- set current: chapter, paragraph, sentence
+
+	add
+	+ ENTER
+	(unnecessary after new chapter: start typing)
 
 ### Features List
 
-**Universal**
-- UI: main (3-1), side-by-side (1-1), textarea
-- Commands: select, undo, redo, join
-  Flags: -n (note)
 
-| command | action                            | shorthand |
-|---------|-----------------------------------|-----------|
-| select  | remember for input of next cmd    | sel       |
-| mselect | select multiple                   | ms        |
-|         | does not use same store as select |           |
-| undo    | undo last change                  | un        |
-| redo    | redo last change                  | re        |
-| join    | connect entity to entity          | jn        |
-|         | -n: add a note to connection      |           |
-| unjoin  | disconnect entity from entity     | ujn       |
-| history | view history of all changes       | hst       |
-|         | version control of feature        | vc        |
-
-	Note: segment
-	- chapter
-	- scene
-	- parargraph
-	- sentence
-	- word
-
-	Note: How to refer segments
-	1. d-c-p-s: draft-chapter-paragraph-sentence
-	2. t-e: timeline-event
-	3. scn: scene
-
-| command | interface                         |
-|---------|-----------------------------------|
-| wmod    | writing mode                      |
-| pmod    | planning mode                     |
-| emod    | editing mode                      |
-| sbs     | side-by-side views                |
-| main    | main view w/out aside             |
-| side    | change feature viewed in aside    |
-| exp     | expand aside                      |
-| cls     | collapse (close) aside            |
-
-**Writing mode**: focus on writing
-- UI: main (writing)
-- Features:
-- Commands: create, add, insert, copy, remove
-
-| command | action                            | shorthand |
-|---------|-----------------------------------|-----------|
-| create  | draft, chapter, scene             | new       |
-| add     | free write from last segment      | add       |
-| insert  | free write from segment location  | ins       |
-| rewrite | overwrite from segment location   | rw        |
-| copy    | duplicate                         | cp        |
-| remove  | delete or store segment(s)        | rm        |
-|         | -n: form unjoined segment w/ note |           |
-|         | -j: join entity                   |           |
-
-**Planning mode**: focus on management of information and text
-- UI: main (feature || dashboard)
-- Features: outline, timelines, profiles, maps, rules, languages
-- Commands: move, find, fall (find_all), replace, add, update
-
-| command | action                            | shorthand |
-|---------|-----------------------------------|-----------|
-| move    | move segments                     | mv        |
-| find    | find first instance in main       | fn        |
-| findall | find all instances in main        | fall      |
-| replace | replace instance(s)               | rp        |
-| create  | add instance of feature           | new       |
-| name    | entitle segment or entity         | nm        |
-
-	Note:
-	- outline: scenes (and segments)
-	- timelines: encounters and events
-	  - scale: person, people, places
-	  - intersections
-	- character profiles: person, people, and places
-	  - person: identity, appearance, personality and manner
-	  - people: beliefs, customs, opinions
-	  - places:
-	- maps: upload and-or draw
-	  - geographic
-	  - demographic
-	  - distance calculation
-	  - locations between timelines and characters
-	- rules
-	- languages
-	  - lexicon
-	  - grammar guide
-	  - glossary
-
-**Editing mode**: focus on collection of feedback
-- UI: side-by-side (writing : editing)
-- Features: view, comment, markup
-- Commands: spell, strike, segment, mark, note
-
-| command | action                            | shorthand |
-|---------|-----------------------------------|-----------|
-| spell   | spelling or proper term           | sp        |
-| strike  | remove                            | str       |
-| segment | separation or delineate segments  | seg       |
-| mark    | changes: insert, style, move      |           |
-| note    | add comment                       |           |
-| save    | generate downloadable file        |           |
-|         | used to send edit notes           |           |
 
 ### Input Processing
 - cmd format: cmd orig dest
@@ -233,56 +144,42 @@ location:
 
 ## Storage
 Directory: _storage (.gitignore)
-
-Each use of the Creative Writing Browser editor requires its own _storage and storage.js, meaning if forked, storage is up to the developer to setup, structure, and operate.
-
-Purpose: enable local development for singular uses and to use github pages for viewing and editing
+- img
+- drafts (.md)
 
 Setup: editor available as homepage with writing and planning modes available, separate view provided for editing mode open to visitors on github pages, pages for view generated by publish.js in storage.js (node script)
 
-### Data Structure
+**Local storage**
+- works			= titles[]
+- <work_title>	= drafts[]
+- drafts
+  - chapters { id: uuid, title: chapter_title, outline: outline-uuid, contains: (scene-uuid|paragraph-uuid)[] }
+    - scenes { id: uuid, title: scene_title, contains: (paragraph-uuid)[] }
+	- paragraphs { id: uuid, contains: (sentence-uuid)[] }
+	  - sentences
+- outlines { id: uuid, work: work_title, contains: (chapter-uuid|scene-uuid)[] }
 
-ObjectStore: **Segments**
-- sentence
-  - id, title
-  - content: sentence
+**Database**
+- segments		= { id: uuid, txt: sentence }
+- descriptions	= { id: uuid, txt: sentence-paragraph }
 
-ObjectStore: **Descriptions**
-- description
-  - id, type (rule, encounter, event, profile, map, definition)
-  - content: text
+**Database (optional)**
+- works
+- drafts		= { id: uuid, last_date: <date>, }
+- chapters
+- scenes
+- paragraphs
+- outlines
+- worlds
+- timelines
+- events (encounters)
+- profiles
+- maps
+- languages
+  - diction
+  - syntax
+  - glossary
 
-ObjectStore: **Outline**
-- chapter
-  - id, title
-  - contains: scenes, paragraphs
-- scene
-  - id, title
-  - contains: paragraphs
-- paragraph
-  - id, title
-  - contains: sentences
-
-ObjectStore: **Worlds**
-- world
-  - id, title
-  - contains: timelines, profiles, maps, languages
-
-
-
-ObjectStore: **Timeline**
-- encounter
-- event
-
-ObjectStore: **Profiles**
-- profile
-  - person
-  - people
-  - place
-
-ObjectStore: **Maps**
-
-ObjectStore: **Languages**
 
 ### LocalStorage
 Purpose: storage of selections, last points, and settings
