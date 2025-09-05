@@ -1,12 +1,10 @@
-import { v4 as uuid } from 'uuid'
 import 'animate.css'
 import './style.css'
 
-console.log(uuid())
-
 document.addEventListener("click", () => document.getElementById("cmd-ln").focus())
 
-document.getElementById("cmd-ln").addEventListener("keydown", e => {
+const ipt = document.getElementById("cmd-ln")
+ipt.addEventListener("keydown", e => {
 	switch (e.key) {
 		case ".":
 		case "?":
@@ -14,6 +12,7 @@ document.getElementById("cmd-ln").addEventListener("keydown", e => {
 			console.log("end sentence")
 			break;
 		case "Enter":
+			const is_command = ipt.value.split(" ")[0]
 			console.log("enter command or new segment")
 			break;
 	}

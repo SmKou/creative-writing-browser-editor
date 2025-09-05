@@ -59,7 +59,7 @@ main {
 		position: relative;
 		width: 75vw;
 		max-width: 960px;
-		height: 100%;
+		height: calc(100vh - 84px);
 		border-left: 1px solid deeppink;
 		border-right: 1px solid deeppink;
 		color: black;
@@ -131,13 +131,14 @@ main {
 	&.side-by-side {
 		display: flex;
 		align-items: center;
+
+		aside { height: calc(100vh - 84px) }
 	}
 
 	&.side-by-side section,
 	&.side-by-side aside {
 		display: block;
 		width: 50vw;
-		height: calc(100vh - 84px);
 		display: inline-block;
 	}
 }
