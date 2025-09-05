@@ -42,11 +42,14 @@ In writing mode, user can navigate and edit their draft of a story. All other fe
 	</li>
 </ol>
 ```
-Note: if no title = untitled_n (by scope)
+If no title for a segment, other than for paragraphs and sentences which have no titles, default is untitled_n (by scope). For the outermost <ol>, if there's no scene identifier (scene-uuid), default is chapter identifier (chapter-uuid). When a draft is generated, scene titles are ignored unless otherwise specified, ie. scene_titles: true, and should there be separation of scenes, the segments will be separated by an empty line or line break.
 
-Note: if no scene title, outer ol uses chapter-uuid
+Location <loc>
+<br>d(num)-c(num)-n(num)-p(num)-s(num): draft-chapter-scene-paragraph-sentence
+<br>does not have to be complete in use
 
-Note: scene titles are ignored in generation unless noted otherwise (scene_titles: true)
+Location range <loc:loc>
+<br>
 
 Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from one starting location to an ending location (start inclusive, end exclusive)
 
@@ -108,9 +111,11 @@ Note: <loc> is location, formatted as d-c-n-p-s, and <loc:loc> is a range from o
 	  ra "" "" <a|c|s|p> <loc:loc>
 	  :: replace all instances of "" with "" in all, chapter, scene, or paragraph
 	  add location to change selected used for reference
-Note: only locations for destinations are needed if using the selected or current context
+Only locations for destinations are needed if using the selected or current context. Current context will always shift to destination of an action.
 
-Note: current context will always shift to destination of an action
+segment: part of writing (chapter, scene, paragraph, sentence)
+
+location:
 
 ### Features List
 
