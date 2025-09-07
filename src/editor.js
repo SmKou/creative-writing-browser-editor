@@ -1,7 +1,6 @@
 import { store } from '../_storage/storage'
 
-const load = (filename, ...params) => {
-	const txt = Object.keys(params).length
-		? store.read(filename, params)
-		: store.read(filename)
+export default {
+	has_last: () => store.has_last(),
+	last: () => store.get_last()
 }

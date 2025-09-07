@@ -1,5 +1,12 @@
+import editor from 'editor'
 import 'animate.css'
 import './style.css'
+
+if (editor.has_last) {
+	const load = editor.get_last
+	document.querySelector("h1").innerHTML = load.work_title
+	document.getElementById("draft-num").innerHTML = load.draft_n
+}
 
 document.addEventListener("click", () => document.getElementById("cmd-ln").focus())
 
@@ -12,7 +19,6 @@ ipt.addEventListener("keydown", e => {
 			console.log("end sentence")
 			break;
 		case "Enter":
-			const is_command = ipt.value.split(" ")[0]
 			console.log("enter command or new segment")
 			break;
 	}
