@@ -28,19 +28,6 @@ header {
 		display: inline-block;
 		color: white;
 	}
-
-	#draft-num {
-		width: 30px;
-		height: 30px;
-		margin-left: 12px;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: black;
-		background: #ccc;
-		font-size: 24px;
-	}
 }
 
 main {

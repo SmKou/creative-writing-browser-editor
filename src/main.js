@@ -1,25 +1,39 @@
-import editor from 'editor'
+// import editor from 'editor'
+import { default as test } from '../_storage/test/test_editor'
 import 'animate.css'
 import './style.css'
 
-if (editor.has_last) {
-	const load = editor.get_last
-	document.querySelector("h1").innerHTML = load.work_title
-	document.getElementById("draft-num").innerHTML = load.draft_n
-}
-
-document.addEventListener("click", () => document.getElementById("cmd-ln").focus())
-
 const ipt = document.getElementById("cmd-ln")
+
+document.addEventListener("click", () => ipt.focus())
+
 ipt.addEventListener("keydown", e => {
-	switch (e.key) {
-		case ".":
-		case "?":
-		case "!":
-			console.log("end sentence")
-			break;
-		case "Enter":
-			console.log("enter command or new segment")
-			break;
+	if (e.key != "Enter")
+		return;
+	const user_input = ipt.value
+	if (!user_input) {
+		// todo: new paragraph
+	}
+
+	const cmd = user_input.split(" ")[0]
+	if (test.has(cmd)) {
+		// todo: execute command
+	}
+	else if (cmd[0] === "#") {
+		switch (cmd.length) {
+			case 1:
+				// todo: rename
+				break;
+			case 2:
+				// todo: new chapter
+				break;
+			case 3:
+				// todo: new section
+		}
+	}
+	else {
+		test.fn.create.sentence(user_input)(ipt, document.querySelector(".current"))
 	}
 })
+
+test.fn.load()

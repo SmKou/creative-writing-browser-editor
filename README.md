@@ -239,6 +239,28 @@ req.onsuccess = e => {
 	txn.oncomplete = () => console.log("User deleted")
 }
 ```
+## User Interface
+```html
+<header>
+	<h1></h1>
+</header>
+<main>
+	<article>
+		<h2></h2>
+		<ol id="chapter-id">
+			<li class="section">
+				<ol id="section-id">
+					<li class="paragraph">
+						<ol id="paragraph-id">
+							<li></li>
+						</ol>
+					</li>
+				</ol>
+			</li>
+		</ol>
+	</article>
+</main>
+```
 
 ## License
 
