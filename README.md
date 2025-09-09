@@ -117,6 +117,19 @@ Directory: _storage (.gitignore)
 Used for basic memory (can only store string values)
 
 ```js
+const work_untitled = 1
+const chapter_untitled = 1
+const section_untitled = 1
+
+const current_work = work_id
+const current_draft = draft_id
+const current_chapter = chapter_id
+const current_section = section_id
+const current_paragraph = paragraph_id
+```
+
+**Usage**
+```js
 const local = localStorage
 
 const store = {
@@ -140,6 +153,41 @@ const store = {
 ### Database storage
 Used for persistent memory, stores objects and can contain blobs and images
 
+```js
+const db = {
+	works: objectStore,
+	drafts: objectStore
+}
+
+const works = {
+	id: {
+		title: "",
+		drafts: [],
+		outline: []
+	}
+}
+
+const drafts = {
+	id: {
+		order: [],
+		chapters: new Map(),
+		sections: new Map(),
+		paragraphs: new Map(),
+		sentences: new Map()
+	}
+}
+
+const states = {
+	work_id: {
+		draft: draft_id,
+		chapter: chapter_id,
+		section: section_id,
+		paragraph: paragraph_id
+	}
+}
+```
+
+**Usage**
 ```js
 const req = indexedDB.open("CWBe", 1)
 
