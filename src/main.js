@@ -57,10 +57,10 @@ const load = (ipt, title = "") => {
 	draft()
 	const chapter_title = create.chapter("")
 	document.querySelector("article").append(chapter(chapter_title))
-	const paragraph_id = create.paragraph()
-	document.querySelector("article").append(paragraph(paragraph_id))
-	const sentence_id = create.sentence()
-	document.getElementById(paragraph_id).append(sentence(sentence_id, ipt))
+	const { p } = create.paragraph()
+	document.querySelector("article").append(paragraph(p.id))
+	const { s } = create.sentence()
+	document.getElementById(p.id).append(sentence(s.id, ipt))
 }
 
 const state = {
@@ -88,10 +88,18 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote)
 			if (state.end_marks.includes(state.last_key)) {
+				const pop = commit.sentence(user_input)
+				const pop_sen = document.getElementById(pop.id)
+				pop_sen.classList.remove("current")
+				pop_sen.append(document.createTextNode(pop.txt))
+
 				evt.target.remove()
 				const { last, s } = create.sentence()
-				const sentence = sentence(s.id, evt.target)
-				document.getElementById(last).after(sentence)
+				const sen = sentence(s.id, evt.target)
+				document.getElementById(last).after(sen)
+
+				evt.target.focus()
+				state.shifted = true
 				return;
 			}
 			else
@@ -115,7 +123,7 @@ const handle_type = evt => {
 			document.querySelector("h2").after(pre_section)
 		}
 		const sentences = create.sentence()
-		const s = sentence(sentences.n.id, evt.target)
+		const s = sentence(sentences.s.id, evt.target)
 		const paragraphs = create.paragraph()
 		const p = paragraph(paragraphs.p.id)
 		p.append(s)
@@ -178,8 +186,7 @@ const handle_type = evt => {
 				document.querySelector("h2").after(n)
 			break;
 		default:
-			if (editor.has(cmd))
-				editor[cmd]()
+			// does command exist?
 	}
 	state.last_key = ""
 	state.shifted = true
@@ -190,6 +197,7 @@ const ipt = document.createElement("textarea")
 ipt.id = "ipt"
 ipt.addEventListener("keydown", handle_type)
 ipt.addEventListener("keyup", evt => {
+	console.log("keyup", state.shifted)
 	if (state.shifted) {
 		evt.target.value = ""
 		state.shifted = false
