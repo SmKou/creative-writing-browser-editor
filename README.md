@@ -1,4 +1,4 @@
-# Creative Writing Browser editor
+# Creative Writing Browser editor (CWBe)
 
 ## Description
 
@@ -8,41 +8,52 @@ Creative Writing Browser editor (CWBe) is a browser-based editor for writing, ex
 1. Remove segments and make notes of them
 2. Text navigation
 3. Share-view
-4. Features: outline, timelines, world-building
+4. Features:
+   - outline
+   - timelines
    - profiles
    - maps
-   - rules
+   - world
    - languages
 
 Issue: Sharing of local or copyright data
 
-## User Interface
+### User Interface
 ```html
 <header>
-	<h1></h1>
+	<h1>Work title</h1>
 </header>
 <main>
 	<article>
-		<h2></h2>
-		<ol id="chapter-id">
-			<li class="section">
-				<ol id="section-id">
-					<li class="paragraph">
-						<ol id="paragraph-id">
-							<li>
-								<textarea id="ipt" autofocus></textarea>
-							</li>
-						</ol>
-					</li>
+		<h2>Chapter title</h2>
+		<ol id="section-id" class="section">
+			<li>
+				<div class="section-paragraph-n"></div>
+				<ol id="paragraph-id" class="paragraph">
+					<li class="current"><textarea id="ipt" autofocus></textarea></li>
 				</ol>
 			</li>
 		</ol>
+		<h3 id="section-id">Section title</h3>
+		<!-- alternative format-->
+		<section id="section-id">
+			<div class="section-paragraph-n"></div>
+			<p id="paragraph-id">
+				<span id="sentence-id" class="current">
+					<span><textarea id="ipt" autofocus></textarea></span>
+					<span class="sentence-end">
+						<span class="sentence-n"></span>
+						<span class="end-mark">.|?|!</span>
+					</span>
+				</span>
+			</p>
+		</section>
 	</article>
 </main>
 ```
 
 	Definition: work
-	A writing project consisting of multiple drafts, as well as an outline, timelines, profiles, languages, maps, and views cross-referencing between entities of these features
+	A writing project consisting of a world and multiple drafts, as well as an outline, timelines, profiles, languages, maps, and views cross-referencing between entities of these features
 
 	Definition: draft
 	A version of the writing project consisting of all chapters, sections, paragraphs, and sentences written with a working draft determining which are the most recent or used for the current arrangement.
@@ -50,198 +61,40 @@ Issue: Sharing of local or copyright data
 	Definition: segment
 	A contained piece of writing, i.e. chapter, section, paragraph, sentence
 
-**What if there are no sections?**: At the beginning of a chapter, paragraphs are added to the current chapter, but if a section is encountered later on, either by a double ENTER, `create section`, or `###`, then the paragraphs prior are removed from the chapter, added to a scene, and that scene is added to the chapter before adding a new section.
 
-| command | action                            | abbr |
-|---------|-----------------------------------|------|
-| load    | retrieve data from db for work    |      |
-| save    | commit all changes to db          |      |
-| undo    | undo last change: keep in history |      |
-| redo    | redo last change                  |      |
-| select  | set from-ref for next command     | slt  |
-|         | multiple select (apply to each)   | msl  |
-| join    | connect entity to entity w/ note  | jn   |
-| unjoin  | disconnect entity from entity     | ujn  |
-|         | deletes note                      |      |
-| focus   | shift command relevance to ref(s) | fcs  |
+**What if there are no sections?**: At the beginning of a chapter, paragraphs are added to the current chapter, but if a section is encountered later on, either by ENTER, `create section`, or `###`, then the paragraphs prior are removed from the chapter, added to a section, and that section is added to the chapter before adding a new section.
 
-**Reference and Side-by-side**
-| command   | action                            | abbr |
-|-----------|-----------------------------------|------|
-| outline   | open working draft's outline      | oln  |
-|           | -f: open or find outline          |      |
-| timeline  | open timelines view               | tmln |
-|           | default: last open timeline(s)    |      |
-|           | -f: open or find timeline(s) view |      |
-| profile   | open profiles view                | pfl  |
-|           | default: last open profile(s)     |      |
-|           | -f: open or find profile(s) view  |      |
-| language  | open languages view               | lng  |
-|           | default: last open language(s)    |      |
-|           | -f: open or find language/feature |      |
-|           | -d: dictionary                    |      |
-|           | -s: syntax (grammar guide)        |      |
-|           | -g: glossary (examples)           |      |
-| map       | open maps view                    | mp   |
-|           | default: last open map(s)         |      |
-|           | -f: open or find map              |      |
-|           | -s: set scale to open with        |      |
-| view      | open saved or new view            | vw   |
-|           | -t: set feature for top view      |      |
-|           | -b: set feature for bottom view   |      |
-|           | can embed above commands: `view -t mp <>` |
+## How to Use
 
-	Note:
-	Reference features can only open views for up to two entities at once, which are shown top-and-bottom separately.
+NOT LIVE YET @ [CWBe](https://github.com/SmKou/creative-writing-browser-editor)
 
-	View:
-	A saved arrangement for viewing more than two entities of a feature at once (extended side), or two entities from different features. A view has its own notes and history, though still stored by features, and is only used for remembering the last state of an arrangement. The arrangement can be changed throughout a session, such as switching one side from a language's dictionary to a timeline.
+## Setup
+User interface: main.js
 
-### Writing mode
-Page: /
+Controllers
+- wmod, pmod (/): editor.js
+- emod (/view): view.js
 
-Focus: writing
+Storage: not provided
 
-In writing mode, user can navigate and edit their draft of a story. All other features are for reference only. The most the user can use of the other features is notes on changed or removed text, and adding or copying text from a feature.
+- Create a (sub)directory: storage or _storage
 
+	Note: _storage
+	Included in .gitignore
 
+- Create script: storage.js
 
-## Storage
-Directory: _storage (.gitignore)
-- drafts (.md)
-- img (.png|.jpg)
-- publish.js: converts working draft to .html in view/
-- storage.js: manages data and storage
+	Note: storage.js
+	Handles memory in localstorage and indexeddb
+	Can include scripts for backup and conversion files
 
-### Local storage
-Used for basic memory (can only store string values)
+- Add import statement to editor.js
 
-```js
-const work_untitled = 1
-const chapter_untitled = 1
-const section_untitled = 1
-
-const current_work = work_id
-const current_draft = draft_id
-const current_chapter = chapter_id
-const current_section = section_id
-const current_paragraph = paragraph_id
-```
-
-**Usage**
-```js
-const local = localStorage
-
-const store = {
-	local: {
-		add: (key, value = "") => local.setItem(key, value.toString()),
-		get: (key) => {
-			const itm = local.getItem(key)
-			if (!itm)
-				return {
-					error: 404,
-					msg: `not found: ${key}`
-				}
-			return itm
-		},
-		remove: (key) => local.delete(key),
-		reset: () => local.clear()
-	}
-}
-```
-
-### Database storage
-Used for persistent memory, stores objects and can contain blobs and images
-
-```js
-const db = {
-	works: objectStore,
-	drafts: objectStore
-}
-
-const works = {
-	id: {
-		title: "",
-		drafts: [],
-		outline: []
-	}
-}
-
-const drafts = {
-	id: {
-		order: [],
-		chapters: new Map(),
-		sections: new Map(),
-		paragraphs: new Map(),
-		sentences: new Map()
-	}
-}
-
-const states = {
-	work_id: {
-		draft: draft_id,
-		chapter: chapter_id,
-		section: section_id,
-		paragraph: paragraph_id
-	}
-}
-```
-
-**Usage**
-```js
-const req = indexedDB.open("CWBe", 1)
-
-req.onupgradeneeded = evt => {
-	const db = evt.target.result
-	// create object stores
-	if (!db.objectStoreNames.contains(objectStoreName))
-		db.createObjectStore(objectStoreName, { keyPath: "id" })
-	// populate initial data
-}
-
-req.onsuccess = evt => {
-	const db = evt.target.result
-	const txn = db.transaction(objectStoreName, "readonly")
-	const obj_store = txn.objectStore(objectStoreName)
-	const res = obj_store.get(id)
-	res.onsuccess() => data.id = res.result
-}
-
-// single addition
-req.onsuccess = evt => {
-	const db = evt.target.result
-	const txn = db.transaction(objectStoreName, "readwrite")
-	const obj_store = txn.objectStore(objectStoreName)
-	obj_store.add({ id, ...data })
-	ids.push(id)
-	txn.oncomplete = () => data.committed = id
-}
-
-// multiple addition
-req.onsuccess = evt => {
-	const ids = []
-	const db = evt.target.result
-	const txn = db.transaction(objectStoreName, "readwrite")
-	const obj_store = txn.objectStore(objectStoreName)
-	data.forEach(datum => {
-		const res = obj_store.add({ id, ...datum })
-		res.onsuccess = evt => ids.push(id)
-	})
-	txn.oncomplete = () => data.committed = ids
-}
-
-// single deletion
-req.onsuccess = evt => {
-	const db = evt.target.result
-	const txn = db.transaction(objectStoreName, "readwrite")
-	const obj_store = txn.objectStore(objectStoreName)
-	const res = obj_store.delete(id)
-	txn.oncomplete = () => data.removed = id
-}
-```
-
-	Note:
-	Only reason to close database explicitly is for versionchange, such as when two instances open (tabs).
+	Note: editor.js
+	To avoid use of replace, call import: store
+	```js
+	import store from '_storage/storage'
+	```
 
 ## License
 
