@@ -1,5 +1,4 @@
-// import editor from 'editor'
-import { create, commit } from '../_storage/test/simple'
+// import { processed, unprocessed } from '_storage/test/sample'
 import 'animate.css'
 import './style.css'
 
