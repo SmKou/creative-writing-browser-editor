@@ -1,5 +1,7 @@
+import { setting } from 'write'
+
 const create = {
-	work: ({ title }) => {
+	work: (title) => {
 		document.querySelector("h1").innerHTML = title
 	},
 	draft: () => {
@@ -7,12 +9,12 @@ const create = {
 		while (article.firstChild)
 			article.firstChild.remove()
 	},
-	chapter: ({ title }) => {
+	chapter: (title) => {
 		const h2 = document.createElement("h2")
 		h2.append(document.createTextNode(title))
 		return h2
 	},
-	section: ({ id, title, view_setting, pre_section }) => {
+	section: (id, title, pre) => {
 		const h3 = document.querySelector("h3")
 		h3.append(document.createTextNode(title))
 		const section = view_setting === "lst"
@@ -31,7 +33,7 @@ const create = {
 					section.append(li)
 				}
 				: (paragraph) => paragraph
-			paragraphs.forEach(paragraph => paragraph => {
+			paragraphs.forEach(paragraph => {
 				paragraph.remove()
 				const child = fill(paragraph)
 				section.append(child)
@@ -40,7 +42,7 @@ const create = {
 		h3.after(section)
 		return h3
 	},
-	paragraph: ({ id, view_setting }) => {
+	paragraph: (id) => {
 		const paragraph = view_setting === "lst"
 			? document.createElement("ol")
 			: document.createElement("p")
@@ -49,7 +51,7 @@ const create = {
 			paragraph.setAttribute("class", "paragraph")
 		return paragraph
 	},
-	sentence: ({ id, ipt, view_setting }) => {
+	sentence: (id, ipt) => {
 		const sentence = view_setting === "lst"
 			? document.createElement("li")
 			: document.createElement("span")
@@ -60,4 +62,8 @@ const create = {
 		sentence.append(ipt)
 		return sentence
 	}
+}
+
+export const dom = {
+	create
 }
