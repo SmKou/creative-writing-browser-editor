@@ -17,32 +17,59 @@ const create = {
 	section: (id, title, pre) => {
 		const h3 = document.querySelector("h3")
 		h3.append(document.createTextNode(title))
-		const section = view_setting === "lst"
-			? document.createElement("ol")
-			: document.createElement("section")
-		section.id = id
-		section.setAttribute("class", "section")
-		if (pre_section) {
-			const paragraphs = view_setting === "lst"
-				? document.querySelectorAll(".paragraph")
-				: document.querySelectorAll("p")
-			const fill = view_setting === "lst"
-				? (paragraph) => {
-					const li = document.createElement("li")
-					li.append(paragraph)
-					section.append(li)
+		let section;
+		switch (setting) {
+			case "lst":
+				section = document.createElement("ol")
+				section.setAttribute("class", "section")
+				if (pre) {
+					section.classList.add("section-" + 1)
+					document.querySelector(".paragraph").forEach((paragraph, idx) => {
+						paragraph.remove()
+						const li = document.createElement("li")
+						li.append(paragraph)
+						const addr = document.createElement("div")
+						addr.setAttribute("class", "section-paragraph-n")
+						addr.append(document.createTextNode(`n1-p${idx + 1}`))
+						li.append(addr)
+						li.append(paragraph)
+						section.append(li)
+					})
 				}
-				: (paragraph) => paragraph
-			paragraphs.forEach(paragraph => {
-				paragraph.remove()
-				const child = fill(paragraph)
-				section.append(child)
-			})
+				else {
+					const li = document.createElement("li")
+					section.append(li)
+					set_section_n = (n) => section.classList.add("section-" + n)
+				}
+				break;
+			case "pgh":
+				section = document.createElement("section")
+				if (pre) {
+					section.setAttribute("class", "section-" + 1)
+					document.querySelectorAll("p").forEach((paragraph, idx) => {
+						paragraph.remove()
+						const addr = document.createElement("div")
+						addr.setAttribute("class", "section-paragraph-n")
+						addr.append(document.createTextNode(`n1-p${idx + 1}`))
+						section.append(paragraph)
+					})
+				}
+				else
+					set_section_n = (n) => section.setAttribute("class", "section-" + n)
+				break;
 		}
+		section.id = id
 		h3.after(section)
 		return h3
 	},
 	paragraph: (id) => {
+		let paragraph;
+		switch (setting) {
+			case "lst":
+				break;
+			case "pgh":
+				break;
+		}
 		const paragraph = view_setting === "lst"
 			? document.createElement("ol")
 			: document.createElement("p")
