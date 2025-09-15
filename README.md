@@ -26,18 +26,23 @@ Issue: Sharing of local or copyright data
 <main>
 	<article>
 		<h2>Chapter title</h2>
-		<ol id="section-id" class="section">
-			<li>
-				<div class="section-paragraph-n"></div>
-				<ol id="paragraph-id" class="paragraph">
-					<li class="current"><textarea id="ipt" autofocus></textarea></li>
+		<ol class="chapter">
+			<li id="section-id" class="section">
+				<h3>Section title</h3>
+				<ol>
+					<li id="paragraph-id" class="paragraph">
+						<div class="n-p-addr"></div>
+						<ol>
+							<li class="current"><textarea id="ipt" autofocus></textarea></li>
+						</ol>
+					</li>
 				</ol>
 			</li>
 		</ol>
-		<h3 id="section-id">Section title</h3>
 		<!-- alternative format-->
+		<h3 id="section-id">Section title</h3>
 		<section id="section-id">
-			<div class="section-paragraph-n"></div>
+			<div class="n-p-addr"></div>
 			<p id="paragraph-id">
 				<span id="sentence-id" class="current">
 					<span><textarea id="ipt" autofocus></textarea></span>

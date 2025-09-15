@@ -1,3 +1,9 @@
+:root {
+	--light: mistyrose;
+	--mid: hotpink;
+	--dark: deeppink;
+}
+
 * {
 	box-sizing: border-box;
 	-ms-overflow-style: none;
@@ -13,7 +19,6 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background: seashell;
 	font-family: monospace;
 	font-size: 14px;
 }
@@ -43,6 +48,15 @@ main {
 			color: white;
 			background: black;
 		}
+
+		article {
+			border-left-color: var(--light);
+			border-right-color: var(--light);
+		}
+
+		#ipt {
+			border-color: var(--light);
+		}
 	}
 
 	article {
@@ -53,8 +67,8 @@ main {
 		height: calc(100vh - 84px);
 		padding: 8px;
 		overflow-y: scroll;
-		border-left: 1px solid deeppink;
-		border-right: 1px solid deeppink;
+		border-left: 1px solid var(--dark);
+		border-right: 1px solid var(--dark);
 		color: black;
 		background: snow;
 
@@ -72,7 +86,7 @@ main {
 		width: 100%;
 		min-height: 1lh;
 		max-height: 3.2lh;
-		border: 2px solid deeppink;
+		border: 2px solid var(--dark);
 		field-sizing: content;
 		resize: none;
 
@@ -114,7 +128,7 @@ footer {
 
 		a {
 			margin: 0 8px;
-			color: seashell;
+			color: var(--light);
 			text-decoration: none;
 		}
 		a:hover { color: white }

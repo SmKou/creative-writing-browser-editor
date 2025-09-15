@@ -1,4 +1,38 @@
-import { setting } from 'write'
+import { settings, create as gen } from 'write'
+
+const move = {
+	section: {
+		init: (section) => {
+			if (settings.view) {
+				const paragraphs = document.querySelectorAll("li.paragraph")
+				paragraphs.forEach(paragraph => {
+					const np = paragraph.childNodes[0]
+					np.innerHTML = `n1-${np.innerHTML}`
+					paragraph.remove()
+					section.append(paragraph)
+				})
+			}
+			else {
+				const addresses = document.querySelectorAll(".n-p-addr")
+				const paragraphs = document.querySelectorAll("p")
+				addresses.forEach((addr, idx) => {
+					addr.innerHTML = `n1-${addr.innerHTML}`
+					addr.remove()
+					paragraphs[idx].remove()
+					addr.after(paragraphs[idx])
+					section.append(addr)
+				})
+			}
+		}
+	},
+	sentence: {
+		current: (src, txt) => {
+			const sentence = document.getElementById(src)
+			sentence.classList.remove("current")
+			sentence.append(txt)
+		}
+	}
+}
 
 const create = {
 	work: (title) => {
@@ -12,99 +46,90 @@ const create = {
 	chapter: (title) => {
 		const h2 = document.createElement("h2")
 		h2.append(document.createTextNode(title))
+		if (settings.view) {
+			const ol = document.createElement("ol")
+			ol.setAttribute("class", "chapter")
+			h2.after(ol)
+		}
 		return h2
 	},
-	section: (id, title, pre) => {
+	section: (id, title, n, pre) => {
 		const h3 = document.querySelector("h3")
-		h3.append(document.createTextNode(title))
-		let section;
-		switch (setting) {
-			case "lst":
-				section = document.createElement("ol")
-				section.setAttribute("class", "section")
-				if (pre) {
-					section.classList.add("section-" + 1)
-					document.querySelector(".paragraph").forEach((paragraph, idx) => {
-						paragraph.remove()
-						const li = document.createElement("li")
-						li.append(paragraph)
-						const addr = document.createElement("div")
-						addr.setAttribute("class", "section-paragraph-n")
-						addr.append(document.createTextNode(`n1-p${idx + 1}`))
-						li.append(addr)
-						li.append(paragraph)
-						section.append(li)
-					})
-				}
-				else {
-					const li = document.createElement("li")
-					section.append(li)
-					set_section_n = (n) => section.classList.add("section-" + n)
-				}
-				break;
-			case "pgh":
-				section = document.createElement("section")
-				if (pre) {
-					section.setAttribute("class", "section-" + 1)
-					document.querySelectorAll("p").forEach((paragraph, idx) => {
-						paragraph.remove()
-						const addr = document.createElement("div")
-						addr.setAttribute("class", "section-paragraph-n")
-						addr.append(document.createTextNode(`n1-p${idx + 1}`))
-						section.append(paragraph)
-					})
-				}
-				else
-					set_section_n = (n) => section.setAttribute("class", "section-" + n)
-				break;
+		if (settings.view) {
+			const chapter_section = document.createElement("li")
+			chapter_section.id = id
+			chapter_section.setAttribute("class", "section")
+			const section = document.createElement("ol")
+			if (pre)
+				move.section.init(section)
+			h3.append(document.createTextNode(title))
+			h3.after(section)
+			chapter_section.append(h3)
+			return chapter_section
 		}
-		section.id = id
-		h3.after(section)
-		return h3
+		else {
+			h3.append(document.createTextNode(`${n}. ${title}`))
+			const section = document.createElement("section")
+			if (pre)
+				move.section.init(section)
+			h3.after(section)
+			return h3
+		}
 	},
-	paragraph: (id) => {
-		let paragraph;
-		switch (setting.get("view")) {
-			case "lst":
-				paragraph = document.createElement("ol")
-				paragraph.setAttribute("class", "paragraph")
-				break;
-			case "pgh":
-				paragraph = document.createElement("p")
-				break;
+	paragraph: (id, p, n) => {
+		const np = document.createElement("div")
+		np.setAttribute("class", "n-p-addr")
+		const addr = n ? `n${n}-p${p}` : "p" + p
+		np.append(document.createTextNode(addr))
+		if (settings.view) {
+			const container_paragraph = document.createElement("li")
+			container_paragraph.id = id
+			container_paragraph.setAttribute("class", "paragraph")
+			const paragraph = document.createElement("ol")
+			np.after(paragraph)
+			container_paragraph.append(np)
+			return container_paragraph
 		}
-		paragraph.id = id
-		return paragraph
+		else {
+			const paragraph = document.createElement("p")
+			paragraph.id = id
+			np.after(paragraph)
+			return np
+		}
 	},
 	sentence: (id, ipt) => {
-		let sentence;
-		switch (setting.get("view")) {
-			case "lst":
-				sentence = document.createElement("li")
-				sentence.setAttribute("class", "current")
-				break;
-			case "pgh":
-				sentence = document.createElement("span")
-				sentence.setAttribute("class", "current sentence")
-				break;
-		}
+		const sentence = settings.view
+			? document.createElement("li")
+			: document.createElement("span")
 		sentence.id = id
+		sentence.setAttribute("class", "current")
 		sentence.append(ipt)
 		return sentence
 	}
 }
 
-const move = {
-	sentence: {
-		current: (src, txt) => {
-			const sentence = document.getElementById(src)
-			sentence.classList.remove("current")
-			sentence.append(txt)
-		}
-	}
+const load = (ipt) => {
+	const work_title = gen.work("")
+	create.work(work_title)
+	create.draft()
+	const { title: chapter_title } = gen.chapter("")
+	const chapter = create.chapter(chapter_title)
+	document.querySelector("article").append(chapter)
+
+	const { id: sentence_id } = gen.sentence()
+	const sentence = create.sentence(sentence_id, ipt)
+	const { id: paragraph_id } = gen.paragraph()
+	const paragraph = create.paragraph(paragraph_id, 1)
+	paragraph.append(sentence)
+
+	const container = settings.view
+		? document.querySelector(".chapter")
+		: document.querySelector("article")
+	container.append(paragraph)
 }
 
 export const dom = {
+	load,
 	create,
 	move
 }

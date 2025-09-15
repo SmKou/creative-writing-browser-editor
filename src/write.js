@@ -28,9 +28,9 @@ const current = {
 const get_current = (level) => current[level]
 export { get_current as current }
 
-const settings = {
-	view: "lst",
-	theme: "light",
+export const settings = {
+	view: true,		// true: lst, false: elm
+	theme: true,	// true: light, false: dark
 	color: "deeppink"
 }
 
@@ -68,75 +68,6 @@ const record = (params) => {
 	draft.history.timeline.push(change_id)
 }
 
-// only used for work and draft changes
-const update = (level, params) => {
-	switch (level) {
-		case "work":
-			if (!["create", "delete"].includes(params.action)) {
-				console.error(`invalid update: cannot ${action} work`)
-				return;
-			}
-			switch (params.action) {
-				case "create":
-					histories.set(current.work, {
-						drafts: new Map()
-					})
-					break;
-				case "delete":
-					const delete_work = (user_input) => {
-						if (!user_input) { return; }
-						works.get(current.work).drafts.forEach(draft => drafts.delete(draft))
-						histories.delete(current.work)
-						works.delete(current.work)
-						return {
-							error: false,
-							type: confirmation,
-							msg: `${work_title} has been deleted.`
-						}
-					}
-					if (!params.req) {
-						const work_title = works.get(current.work).title
-						return {
-							error: true,
-							type: confirmation,
-							msg: `You are about to delete ${work_title} and will lose all data in the app. This is not a reversible action.
-
-							Make sure you have backed up whatever data from ${title} you wish to retain before deletion. Backups are not stored in app or on a server. To download a backup, cancel here and use the save command either within the work you want backed up or using the work's address.
-
-							Do you still want to proceed?`,
-							action: delete_work
-						}
-					}
-					return delete_work(true)
-			}
-			break;
-		case "draft":
-			if (!["create", "delete"].includes(params.action)) {
-				console.error(`invalid update: cannot ${action} draft`)
-				return;
-			}
-			switch (params.action) {
-				case "create":
-					histories.get(current.work).drafts.set(current.draft, {
-						current: 0,
-						timeline: [],
-						changes: {}
-					})
-					break;
-				case "move":
-					break;
-				case "delete":
-			}
-			break;
-		case "chapter":
-			if (!["create", "delete", "move"].includes(params.action))
-				record(params)
-			break;
-		default:
-			record(params)
-	}
-}
-
 const error = {
 	invalid_argument: ({ action, target, arg }) => ({
 		error: true,
@@ -156,14 +87,6 @@ export const create = {
 		})
 		current.work = work_id
 		reset_untitled("work")
-		update("work", {
-			action: "create",
-			cond: { title },
-			res: {
-				id: work_id,
-				title: work_title
-			}
-		})
 		return work_title
 	},
 	draft: () => {
@@ -178,11 +101,6 @@ export const create = {
 		works.get(current.work).drafts.push(draft_id)
 		current.draft = draft_id
 		reset_untitled("draft")
-		record({
-			action: "create",
-			cond: { level: "draft" },
-			res: { id: draft_id }
-		})
 	},
 	chapter: (title) => {
 		const chapter_id = gen_id()
@@ -195,14 +113,6 @@ export const create = {
 		draft.order.push(chapter_id)
 		current.chapter = chapter_id
 		reset_untitled("chapter")
-		record({
-			action: "create",
-			cond: { level: "chapter", title },
-			res: {
-				id: chapter_id,
-				title: chapter_title
-			}
-		})
 		return { id: chapter_id, title: chapter_title }
 	},
 	section: (title) => {
@@ -214,14 +124,6 @@ export const create = {
 			order: []
 		})
 		current.section = section_id
-		record({
-			action: "create",
-			cond: { level: "section", title },
-			res: {
-				id: section_id,
-				title: section_title
-			}
-		})
 		data.id = section_id
 		data.title = section_title
 		return data
@@ -231,11 +133,6 @@ export const create = {
 		const paragraph_id = gen_id()
 		drafts.get(current.draft).paragraphs.set(paragraph_id, [])
 		current.paragraph = paragraph_id
-		record({
-			action: "create",
-			cond: { level: "paragraph" },
-			res: { id: paragraph_id }
-		})
 		data.id = paragraph_id
 		return data
 	},
@@ -243,11 +140,6 @@ export const create = {
 		const data = { last: current.sentence }
 		const sentence_id = gen_id()
 		current.sentence = sentence_id
-		record({
-			action: "create",
-			cond: { level: "sentence" },
-			res: { id: sentence_id }
-		})
 		data.id = sentence_id
 		return data
 	}
