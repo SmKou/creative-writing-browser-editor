@@ -64,33 +64,47 @@ const create = {
 	},
 	paragraph: (id) => {
 		let paragraph;
-		switch (setting) {
+		switch (setting.get("view")) {
 			case "lst":
+				paragraph = document.createElement("ol")
+				paragraph.setAttribute("class", "paragraph")
 				break;
 			case "pgh":
+				paragraph = document.createElement("p")
 				break;
 		}
-		const paragraph = view_setting === "lst"
-			? document.createElement("ol")
-			: document.createElement("p")
 		paragraph.id = id
-		if (view_setting = "lst")
-			paragraph.setAttribute("class", "paragraph")
 		return paragraph
 	},
 	sentence: (id, ipt) => {
-		const sentence = view_setting === "lst"
-			? document.createElement("li")
-			: document.createElement("span")
+		let sentence;
+		switch (setting.get("view")) {
+			case "lst":
+				sentence = document.createElement("li")
+				sentence.setAttribute("class", "current")
+				break;
+			case "pgh":
+				sentence = document.createElement("span")
+				sentence.setAttribute("class", "current sentence")
+				break;
+		}
 		sentence.id = id
-		sentence.setAttribute("class", "current")
-		if (view_setting === "pgh")
-			sentence.classList.add("sentence")
 		sentence.append(ipt)
 		return sentence
 	}
 }
 
+const move = {
+	sentence: {
+		current: (src, txt) => {
+			const sentence = document.getElementById(src)
+			sentence.classList.remove("current")
+			sentence.append(txt)
+		}
+	}
+}
+
 export const dom = {
-	create
+	create,
+	move
 }

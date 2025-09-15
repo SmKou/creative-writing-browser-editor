@@ -6,6 +6,16 @@ const untitled = {
 	section: 1
 }
 
+const reset_untitled = (level) => {
+	switch (level) {
+		case "work":
+		case "draft":
+			untitled.chapter = 1
+		case "chapter":
+			untitled.section = 1
+	}
+}
+
 const current = {
 	work: "",
 	draft: "",
@@ -19,35 +29,9 @@ const get_current = (level) => current[level]
 export { get_current as current }
 
 const settings = {
-	view: {
-		current: "lst",
-		options: ["lst", "pgh"]
-	},
-	theme: {
-		current: "light",
-		options: ["light", "dark"]
-	},
-	color: { current: "deeppink" }
-}
-
-const get_setting = (setting_name) => settings[setting_name].current
-const set_setting = (setting_name, value) => {
-	const setting = settings[setting_name]
-	if (setting.options)
-		if (setting.options.length === 2)
-			setting.current = Number(!setting.options.indexOf(setting.current))
-		else {
-			setting.current = setting.options.indexOf(setting.current) + 1
-			if (setting.current >= setting.options.length)
-				setting.current = 0
-		}
-	else
-		setting.current = value
-	return setting.current
-}
-export const setting = {
-	get: get_setting,
-	set: set_setting
+	view: "lst",
+	theme: "light",
+	color: "deeppink"
 }
 
 const set_title = (level, title) => {
@@ -60,11 +44,6 @@ const set_title = (level, title) => {
 
 const works = new Map()
 const drafts = new Map()
-const history = {
-	current: 0,
-	timeline: [],
-	changes: new Map()
-}
 
 /* params
  * action {string}		command executed
@@ -83,9 +62,79 @@ const history = {
  */
 const record = (params) => {
 	const change_id = gen_id()
-	history.changes.set(change_id, params)
-	history.current = history.timeline.length
-	history.timeline.push(change_id)
+	const draft = drafts.get(current.draft)
+	draft.history.changes.set(change_id, params)
+	draft.history.current = history.timeline.length
+	draft.history.timeline.push(change_id)
+}
+
+// only used for work and draft changes
+const update = (level, params) => {
+	switch (level) {
+		case "work":
+			if (!["create", "delete"].includes(params.action)) {
+				console.error(`invalid update: cannot ${action} work`)
+				return;
+			}
+			switch (params.action) {
+				case "create":
+					histories.set(current.work, {
+						drafts: new Map()
+					})
+					break;
+				case "delete":
+					const delete_work = (user_input) => {
+						if (!user_input) { return; }
+						works.get(current.work).drafts.forEach(draft => drafts.delete(draft))
+						histories.delete(current.work)
+						works.delete(current.work)
+						return {
+							error: false,
+							type: confirmation,
+							msg: `${work_title} has been deleted.`
+						}
+					}
+					if (!params.req) {
+						const work_title = works.get(current.work).title
+						return {
+							error: true,
+							type: confirmation,
+							msg: `You are about to delete ${work_title} and will lose all data in the app. This is not a reversible action.
+
+							Make sure you have backed up whatever data from ${title} you wish to retain before deletion. Backups are not stored in app or on a server. To download a backup, cancel here and use the save command either within the work you want backed up or using the work's address.
+
+							Do you still want to proceed?`,
+							action: delete_work
+						}
+					}
+					return delete_work(true)
+			}
+			break;
+		case "draft":
+			if (!["create", "delete"].includes(params.action)) {
+				console.error(`invalid update: cannot ${action} draft`)
+				return;
+			}
+			switch (params.action) {
+				case "create":
+					histories.get(current.work).drafts.set(current.draft, {
+						current: 0,
+						timeline: [],
+						changes: {}
+					})
+					break;
+				case "move":
+					break;
+				case "delete":
+			}
+			break;
+		case "chapter":
+			if (!["create", "delete", "move"].includes(params.action))
+				record(params)
+			break;
+		default:
+			record(params)
+	}
 }
 
 const error = {
@@ -106,9 +155,10 @@ export const create = {
 			outline: []
 		})
 		current.work = work_id
-		record({
+		reset_untitled("work")
+		update("work", {
 			action: "create",
-			cond: { level: "work", title },
+			cond: { title },
 			res: {
 				id: work_id,
 				title: work_title
@@ -127,6 +177,7 @@ export const create = {
 		})
 		works.get(current.work).drafts.push(draft_id)
 		current.draft = draft_id
+		reset_untitled("draft")
 		record({
 			action: "create",
 			cond: { level: "draft" },
@@ -136,11 +187,14 @@ export const create = {
 	chapter: (title) => {
 		const chapter_id = gen_id()
 		const chapter_title = set_title("chapter", title)
-		drafts.get(current.draft).chapters[chapter_id] = {
+		const draft = drafts.get(current.draft)
+		draft.chapters.set(chapter_id, {
 			title: chapter_title,
 			order: []
-		}
+		})
+		draft.order.push(chapter_id)
 		current.chapter = chapter_id
+		reset_untitled("chapter")
 		record({
 			action: "create",
 			cond: { level: "chapter", title },
@@ -155,10 +209,10 @@ export const create = {
 		const data = { last: current.section }
 		const section_id = gen_id()
 		const section_title = set_title("section", title)
-		drafts.get(current.draft).sections[section_id] = {
+		drafts.get(current.draft).sections.set(section_id, {
 			title: section_title,
 			order: []
-		}
+		})
 		current.section = section_id
 		record({
 			action: "create",
@@ -248,7 +302,7 @@ export const name = {
 }
 
 export const commit = {
-	sentence: (id, txt) => {
+	sentence: (txt) => {
 		if (!txt)
 			return error.invalid_argument({
 				action: "commit",
@@ -256,31 +310,34 @@ export const commit = {
 				arg: "cannot be empty"
 			})
 		const draft = drafts.get(current.draft)
-		draft.sentences.set(id, txt)
-		draft.paragraphs.get(current.paragraph).push(id)
+		draft.sentences.set(current.sentence, txt)
+		draft.paragraphs.get(current.paragraph).push(current.sentence)
+		return current.sentence
 	},
-	paragraph: (id) => {
+	paragraph: () => {
 		const draft = drafts.get(current.draft)
 		const container = current.section
 			? draft.sections.get(current.section)
 			: draft.chapters.get(current.chapter)
-		container.order.push(id)
+		container.order.push(current.paragraph)
+		return current.paragraph
 	},
-	section: (id) => {
+	section: () => {
 		const draft = drafts.get(current.draft)
 		const chapter = draft.chapters.get(current.chapter)
-		if (!current.section && chapter.order.length) {
-			const section = create.section("")
-			while (chapter.order.length)
-				section.order.push(chapter.order.shift())
-			chapter.order.push(section.id)
-			current.section = section.id
+		if (!current.section) {
+			if (!chapter.order.length) {
+				console.error("cannot commit when no current section")
+				return;
+			}
+			else {
+				const section = create.section("")
+				while (chapter.order.length)
+					section.order.push(chapter.order.shift())
+				current.section = section.id
+			}
 		}
-		chapter.order.push(id)
+		chapter.order.push(current.section)
 		return current.section
-	},
-	chapter: (id) => {
-		const draft = drafts.get(current.draft)
-		draft.order.push(id)
 	}
 }

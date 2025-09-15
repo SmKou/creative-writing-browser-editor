@@ -1,25 +1,46 @@
-// import { processed, unprocessed } from '_storage/test/sample'
+import { setting } from 'write'
+import { dom } from 'ui'
 import 'animate.css'
 import './style.css'
 
-
-const work = (title) => document.querySelector("h1").innerHTML = title
-const draft = () => {
-	const article = document.querySelector("article")
-	while (article.firstChild)
-		article.firstChild.remove()
-}
-const chapter = (title) => {
-	const h2 = document.createElement("h2")
-	h2.append(document.createTextNode(title))
-	return h2
+const create_dom = {
+	section: (id, title, pre) => {
+		const view = setting.get("view")
+		const h3 = document.createElement("h3")
+		h3.append(document.createTextNode(title))
+		const section = view === "lst"
+			? document.createElement("ol")
+			: document.createElement("section")
+		section.id = id
+		if (view === "lst")
+			section.setAttribute("class", "section")
+		if (pre) {
+			const ps = view === "lst"
+				? document.querySelectorAll(".paragraph")
+				: document.querySelectorAll("p")
+			const fill = view === "lst"
+				? (p) => {
+					const li = document.createElement("li")
+					li.append(p)
+					return li
+				}
+				: (p) => p
+			ps.forEach(p => {
+				p.remove()
+				const paragraph = fill(p)
+				section.append(paragraph)
+			})
+		}
+		else if (view === "lst") {
+			const li = document.createElement("li")
+			section.append(li)
+		}
+		h3.after(section)
+		return h3
+	}
 }
 const section = (id, title, pre_section) => {
-	const h3 = document.createElement("h3")
-	h3.append(document.createTextNode(title))
-	const section = document.createElement("ol")
-	section.id = id
-	section.setAttribute("class", "section")
+
 	if (pre_section) {
 		document.querySelectorAll(".paragraph").forEach(paragraph => {
 			paragraph.remove()
@@ -34,19 +55,6 @@ const section = (id, title, pre_section) => {
 	}
 	h3.after(section)
 	return h3
-}
-const paragraph = (id) => {
-	const paragraph = document.createElement("ol")
-	paragraph.id = id
-	paragraph.setAttribute("class", "paragraph")
-	return paragraph
-}
-const sentence = (id, ipt) => {
-	const li = document.createElement("li")
-	li.id = id
-	li.setAttribute("class", "current")
-	li.append(ipt)
-	return li
 }
 
 const load = (ipt, title = "") => {
@@ -85,33 +93,28 @@ const handle_type = evt => {
 
 	const user_input = evt.target.value.split("\n")[0]
 	if (state.end_trigger.includes(evt.key)) {
-		if (state.end_quote)
+		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-				const pop = commit.sentence(user_input)
-				const pop_sen = document.getElementById(pop.id)
-				pop_sen.classList.remove("current")
-				pop_sen.append(document.createTextNode(pop.txt))
-
+				const src = commit.sentence(user_input)
+				dom.move.sentence.current(src, user_input)
+				const data = create.sentence()
 				evt.target.remove()
-				const { last, s } = create.sentence()
-				const sen = sentence(s.id, evt.target)
-				document.getElementById(last).after(sen)
-
+				const sentence = dom.create.sentence(data.id, evt.target)
+				document.getElementById(data.last).after(sentence)
 				evt.target.focus()
 				state.shifted = true
 				return;
 			}
-			else
-				state.end_quote = false
-				state.last_key = evt.key
-				return;
+			else { state.end_quote = false }
+		}
+		state.last_key = evt.key
+		return;
 	}
 
 	if (state.end_marks.includes(evt.key)) {
-		if (!state.end_quote)
-			state.end_quote = true
-			state.last_key = evt.key
-			return;
+		if (!state.end_quote) { state.end_quote = true }
+		state.last_key = evt.key
+		return;
 	}
 
 	if (!user_input) {
