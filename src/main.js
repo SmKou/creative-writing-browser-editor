@@ -3,60 +3,6 @@ import { dom } from 'ui'
 import 'animate.css'
 import './style.css'
 
-const create_dom = {
-	section: (id, title, pre) => {
-		const view = setting.get("view")
-		const h3 = document.createElement("h3")
-		h3.append(document.createTextNode(title))
-		const section = view === "lst"
-			? document.createElement("ol")
-			: document.createElement("section")
-		section.id = id
-		if (view === "lst")
-			section.setAttribute("class", "section")
-		if (pre) {
-			const ps = view === "lst"
-				? document.querySelectorAll(".paragraph")
-				: document.querySelectorAll("p")
-			const fill = view === "lst"
-				? (p) => {
-					const li = document.createElement("li")
-					li.append(p)
-					return li
-				}
-				: (p) => p
-			ps.forEach(p => {
-				p.remove()
-				const paragraph = fill(p)
-				section.append(paragraph)
-			})
-		}
-		else if (view === "lst") {
-			const li = document.createElement("li")
-			section.append(li)
-		}
-		h3.after(section)
-		return h3
-	}
-}
-const section = (id, title, pre_section) => {
-
-	if (pre_section) {
-		document.querySelectorAll(".paragraph").forEach(paragraph => {
-			paragraph.remove()
-			const li = document.createElement("li")
-			li.append(paragraph)
-			section.append(li)
-		})
-	}
-	else {
-		const li = document.createElement("li")
-		section.append(li)
-	}
-	h3.after(section)
-	return h3
-}
-
 const load = (ipt, title = "") => {
 	const work_title = create.work(title)
 	work(work_title)
