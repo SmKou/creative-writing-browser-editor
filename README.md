@@ -2,21 +2,36 @@
 
 ## Description
 
-Creative Writing Browser editor (CWBe) is a browser-based editor for writing, explorative creative writing in particular, and management of world-building notes. Most writing editors are designed for structured writing as in outlines, even encouraging the use of formulas, and while there is software and web apps for world-building, they're mainly for reference and note-keeping. The best that can be asked of either is a side-by-side interface. In explorative creative writing, or pantsing, there's a lot of writing that gets recycled or saved separately for later use or reference. If these pieces could be saved the same as world-building notes or in conjunction with an outline and timelines, it'd be easier for the writer to build progressively through exploration, not having to eventually resort to the outline for thinking and plotting.
+Creative Writing Browser editor (CWBe) is a browser-based editor for writing and management of world-building notes, focused mainly on an exlorative approach. The defining features of this app are side-by-side views, the list-oriented and semantic-oriented organization and navigation, and movement of text between the main text of the work and the world-building notes. For writers with a more explorative approach, there can be a lot of writing that gets reused, placed elsewhere, or saved separately for reference. The point of this app is to enable progression through exploration.
 
-**Concerns**
-1. Remove segments and make notes of them
-2. Text navigation
-3. Share-view
-4. Features:
-   - outline
-   - timelines
-   - profiles
-   - maps
-   - world
-   - languages
+All writing requires editing to improve. The second most important point of this app was a means of rendering drafts and receiving corrections. A full draft is compiled and downloaded as a file that a user can then send to their editors for comments and corrections. To make these comments and corrections, the editor loads the file on the view page. Once finished, their edits are compiled and downloaded as a file to send back to the writer.
 
-Issue: Sharing of local or copyright data
+**Scope**
+- Writing view mode: lists and semantic html
+- Text address navigation
+- View orientation mode: main, focus, and split screen
+- CRUD and relations management of world-building features
+	- drafts
+	- outline
+	- world
+	- timelines
+	- profiles
+	- maps
+	- languages: diction, glossary, syntax
+- History of works, drafts, and features
+- Storage: session, local, and indexedDB
+
+**Out of Scope**
+- Features for personalization and customization
+- Features for academic writing and research
+- Features for schedules and writing goals
+- Features for exporting and publishing
+- Cloud storage
+- Format and templates
+- Speech interface
+- Color coding and highlighting
+
+**Recommendations**: There are many options for writing software and web apps, such as Scrivener which mimics a folder-binder and index card management system. Scrivener requires a monthly subscription however. Some outline-oriented editors include Manuskript, bibisco, Quoll Writer, and Trelby. Note that none of these have been tried or used, but of those mentioned, Quoll Writer seems to have the most similar setup and design philosophy. There are other tools intended for world-building as welll, such as Anvil and Campfire.
 
 ### User Interface
 ```html
@@ -74,32 +89,6 @@ Issue: Sharing of local or copyright data
 NOT LIVE YET @ [CWBe](https://github.com/SmKou/creative-writing-browser-editor)
 
 ## Setup
-User interface: main.js
-
-Controllers
-- wmod, pmod (/): editor.js
-- emod (/view): view.js
-
-Storage: not provided
-
-- Create a (sub)directory: storage or _storage
-
-	Note: _storage
-	Included in .gitignore
-
-- Create script: storage.js
-
-	Note: storage.js
-	Handles memory in localstorage and indexeddb
-	Can include scripts for backup and conversion files
-
-- Add import statement to editor.js
-
-	Note: editor.js
-	To avoid use of replace, call import: store
-	```js
-	import store from '_storage/storage'
-	```
 
 ## License
 
