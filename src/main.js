@@ -1,20 +1,6 @@
-import { setting } from 'write'
 import { dom } from 'ui'
 import 'animate.css'
 import './style.css'
-
-const load = (ipt, title = "") => {
-	const work_title = create.work(title)
-	work(work_title)
-	create.draft()
-	draft()
-	const chapter_title = create.chapter("")
-	document.querySelector("article").append(chapter(chapter_title))
-	const { p } = create.paragraph()
-	document.querySelector("article").append(paragraph(p.id))
-	const { s } = create.sentence()
-	document.getElementById(p.id).append(sentence(s.id, ipt))
-}
 
 const state = {
 	last_key: "",

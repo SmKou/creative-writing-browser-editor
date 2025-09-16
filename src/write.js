@@ -155,12 +155,6 @@ export const name = {
 				target: "work",
 				arg: title
 			})
-		record({
-			action: "rename",
-			cond: { id, title, level: "work" },
-			from: { title: works.get(id).title },
-			to: { title: work_title }
-		})
 		work.title = work_title
 	},
 	chapter: (id, title) => {
@@ -172,12 +166,6 @@ export const name = {
 				target: "chapter",
 				arg: title
 			})
-		record({
-			action: "rename",
-			cond: { id, title, level: "chapter" },
-			from: { title: chapter.title },
-			to: { title: chapter_title }
-		})
 		chapter.title = chapter_title
 	},
 	section: (id, title) => {
