@@ -1,4 +1,3 @@
-import { dom } from 'ui'
 import 'animate.css'
 import './style.css'
 
@@ -27,16 +26,11 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-				const src = commit.sentence(user_input)
-				dom.move.sentence.current(src, user_input)
-				const data = create.sentence()
-				evt.target.remove()
-				const sentence = dom.create.sentence(data.id, evt.target)
-				document.getElementById(data.last).after(sentence)
+
 				evt.target.focus()
 				state.shifted = true
 				return;
-			}
+			} // end of sentence: new sentence
 			else { state.end_quote = false }
 		}
 		state.last_key = evt.key
@@ -50,35 +44,11 @@ const handle_type = evt => {
 	}
 
 	if (!user_input) {
-		evt.target.remove()
-		const res = commit.section()
-		if (res) {
-			const pre_section = section(res, "", true)
-			document.querySelector("h2").after(pre_section)
-		}
-		const sentences = create.sentence()
-		const s = sentence(sentences.s.id, evt.target)
-		const paragraphs = create.paragraph()
-		const p = paragraph(paragraphs.p.id)
-		p.append(s)
-		const sections = create.section()
-		const n = section(sections.n.id, sections.n.title)
-		n.append(p)
-		if (sections.last)
-			document.getElementById(sections.last).after(n)
-		else
-			document.querySelector("h2").after(n)
+
 	} // "Enter" with no txt: new section
 
 	if (evt.key == "Enter") {
-		evt.target.remove()
-		document.querySelector(".current").remove()
-		const sentences = create.sentence()
-		const s = sentence(sentences.s.id, evt.target)
-		const paragraphs = create.paragraph()
-		const p = paragraph(paragraphs.p.id)
-		p.append(s)
-		document.getElementById(paragraphs.last).after(p)
+
 	} // "Enter" with txt: new paragraph
 
 	const cmd = user_input.split(" ")[0]
