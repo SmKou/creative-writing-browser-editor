@@ -1,6 +1,8 @@
-import { load } from './ui'
+import { create, load } from './ui'
 import 'animate.css'
 import './style.css'
+
+const mode = true
 
 const state = {
 	last_key: "",
@@ -27,7 +29,7 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-
+				create.sentence[Number(mode)](user_input, evt.target, 2)
 				evt.target.focus()
 				state.shifted = true
 				return;
@@ -88,4 +90,4 @@ ipt.addEventListener("keyup", evt => {
 })
 document.addEventListener("click", () => ipt.focus())
 
-load[Number(true)](ipt)
+load[Number(mode)](ipt)
