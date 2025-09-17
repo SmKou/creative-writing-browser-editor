@@ -80,25 +80,6 @@ main {
 				padding: 0 12px;
 			}
 		}
-
-		.sentence {
-			width: 100%;
-			display: flex;
-			flex-wrap: wrap;
-		}
-
-		.sentence-end {
-			position: relative;
-			display: flex;
-			flex-direction: column;
-
-			.sentence-n {
-				position: absolute;
-				top: -8px;
-				font-size: 10px;
-
-			}
-		}
 	}
 
 	#ipt {

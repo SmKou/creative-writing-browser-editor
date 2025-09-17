@@ -2,8 +2,6 @@ import { create, load } from './ui'
 import 'animate.css'
 import './style.css'
 
-const mode = true
-
 const state = {
 	last_key: "",
 	end_quote: false,
@@ -29,7 +27,7 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-				create.sentence[Number(mode)](user_input, evt.target, 2)
+				create.sentence[+mode](user_input, evt.target, 2)
 				evt.target.focus()
 				state.shifted = true
 				return;
@@ -80,7 +78,6 @@ const ipt = document.createElement("textarea")
 ipt.id = "ipt"
 ipt.addEventListener("keydown", handle_type)
 ipt.addEventListener("keyup", evt => {
-	console.log("keyup", state.shifted)
 	if (state.shifted) {
 		evt.target.value = ""
 		state.shifted = false
