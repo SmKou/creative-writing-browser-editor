@@ -1,3 +1,4 @@
+import { load } from './ui'
 import 'animate.css'
 import './style.css'
 
@@ -60,34 +61,10 @@ const handle_type = evt => {
 			draft()
 			break;
 		case "##":
-			evt.target.remove()
-			commit.chapter()
-			const chapter_title = create.chapter(user_input.slice(3))
-			const h = chapter(chapter_title)
-			const sen = sentence(sentence.create().id, evt.target)
-			const pgh = paragraph(paragraph.create().id)
-			pgh.append(sen)
-			h.after(pgh)
+			// new chapter
 			break;
 		case "###":
-			evt.target.remove()
-			const res = commit.section()
-			if (res) {
-				const pre_section = section(res, "", true)
-				document.querySelector("h2").after(pre_section)
-			}
-			const sentences = create.sentence()
-			const s = sentence(sentences.n.id, evt.target)
-			const paragraphs = create.paragraph()
-			const p = paragraph(paragraphs.p.id)
-			p.append(s)
-			const sections = create.section(user_input.slice(4))
-			const n = section(sections.n.id, sections.n.title)
-			n.append(p)
-			if (sections.last)
-				document.getElementById(sections.last).after(n)
-			else
-				document.querySelector("h2").after(n)
+			// new section
 			break;
 		default:
 			// does command exist?
@@ -110,4 +87,5 @@ ipt.addEventListener("keyup", evt => {
 		evt.preventDefault()
 })
 document.addEventListener("click", () => ipt.focus())
-load(ipt)
+
+load[Number(true)](ipt)
