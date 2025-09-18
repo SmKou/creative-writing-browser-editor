@@ -1,4 +1,4 @@
-import { create, load } from './ui'
+import { clear, commit, create, load } from './ui'
 import 'animate.css'
 import './style.css'
 
@@ -27,7 +27,10 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-				create.sentence[+mode](user_input, evt.target, 2)
+				commit.sentence(user_input)
+				const current = document.querySelector(".current")
+				const sentence = create.sentence(uid(), evt.target)
+				current.after(sentence)
 				evt.target.focus()
 				state.shifted = true
 				return;
@@ -45,27 +48,52 @@ const handle_type = evt => {
 	}
 
 	if (!user_input) {
-
+		const current = document.querySelector(".section:has(.current)") || document.querySelector("section:has(.current)")
+		const section = create.section(uid(), "untitled")
+		const paragraph = create.paragraph(uid())
+		move(paragraph)
+		section.append(paragraph)
+		current.after(section)
 	} // "Enter" with no txt: new section
 
 	if (evt.key == "Enter") {
-
+		commit(user_input)
+		const current = document.querySelector(".paragraph:has(.current)") || document.querySelector("p:has(.current)")
+		const paragraph = create.paragraph(uid())
+		const sentence = create.sentence(uid(), evt.target)
+		paragraph.append(sentence)
+		current.after(paragraph)
 	} // "Enter" with txt: new paragraph
 
-	const cmd = user_input.split(" ")[0]
+	const [cmd, ...args] = user_input.split(" ")
+	const segs = {
+		section: "",
+		paragraph: "",
+		sentence: ""
+	}
 	switch (cmd) {
 		case "#":
-			const work_title = create.work(user_input.slice(2))
-			work(work_title)
-			create.draft()
-			draft()
+			create.work(args)
+			clear.work()
 			break;
 		case "##":
-			// new chapter
-			break;
+			const chapter = create.chapter(args)
+			document.querySelector("article").replaceChildren(...chapter)
+			segs.section = create.section(uid(), "")
+			segs.paragraph = create.paragraph(uid())
+			move.sentence(segs.paragraph)
+			segs.section.append(segs.paragraph)
+			chapter.at(-1).append(segs.section)
+			break;	// new chapter
 		case "###":
-			// new section
-			break;
+			const current = document.querySelector(".section:has(.current)") || document.querySelector("section:has(.current)")
+			segs.section = create.section(uid(), args)
+			segs.paragraph = create.paragraph(uid())
+			segs.sentence = create.sentence(uid(), evt.target)
+			segs.paragraph.append(segs.sentence)
+			segs.section.append(segs.paragraph)
+			current.after(segs.section)
+			break;	// new section
 		default:
 			// does command exist?
 	}
@@ -86,5 +114,4 @@ ipt.addEventListener("keyup", evt => {
 		evt.preventDefault()
 })
 document.addEventListener("click", () => ipt.focus())
-
-load[Number(mode)](ipt)
+load(ipt)
