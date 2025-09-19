@@ -71,6 +71,7 @@ export const move = {
 export const load = (ipt) => {
 	create.work("Untitled 1")
 	const chapter = create.chapter("Untitled chapter")
+	const section = create.section()
 	const { section, lst_n } = create.section(uid(), "Untitled section")
 	const { paragraph, lst_p } = create.paragraph(uid())
 	const sentence = create.sentence(uid(), ipt)
