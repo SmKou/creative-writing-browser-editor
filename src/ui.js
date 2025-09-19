@@ -34,6 +34,7 @@
  * - Case: rm <loc> -f <feature> <feature-keyword>
  * - Case: rn <[work|chapter|section]> <title>
  */
+import { temp_id } from "./write"
 
 const make = e => document.createElement(e)
 const text = e => document.createTextNode(e)
@@ -47,7 +48,11 @@ const selected = {
 	sentence: ""
 }
 
-const locate = (addr) => {}
+/* Organization
+ * Interface refers to functionality by action then level, source, or target
+ * Organized here by level as functionality differs more by level than source
+ * or target
+ */
 
 const sentence = {
 	create: (id) => {
@@ -65,6 +70,7 @@ const sentence = {
 				current.append(txt)
 			next.classList.add("current")
 			next.append(ipt)
+			return current
 		},
 		ipt: (level, ent, pos) => {
 			const current = query(".current")
@@ -74,14 +80,10 @@ const sentence = {
 					ent.append(current)
 					break;
 				case "sentence":
-					switch (pos) {
-						case "after":
-							ent.after(current)
-							break;
-						case "before":
-							ent.before(current)
-							break;
-					}
+					if (pos === "after")
+						ent.after(current)
+					else if (pos === "before")
+						ent.before(current)
 			}
 		}
 	}
@@ -95,28 +97,11 @@ const paragraph = {
 		paragraph.append(make("ol"))
 		return paragraph
 	},
-	move: {
-		after: (id, paragraph) => {
-			paragraph.remove()
-			query("#" + id).after(paragraph)
-		},
-		before: (id, paragraph) => {
-			paragraph.remove()
-			query("#" + id).before (paragraph)
-		},
-		into: (id, paragraph) => {
-			paragraph.remove()
-			query("#" + id).append(paragraph)
-		}
-	}
+	move: {}
 }
 
-export const create = {
-	sentence: (id) => {
-
-	},
-	paragraph: ,
-	section: (id, title) => {
+const section = {
+	create: (id, title) => {
 		const section = make("li")
 		section.id = id
 		section.setAttribute("class", "section")
@@ -126,33 +111,57 @@ export const create = {
 		section.append(make("ol"))
 		return section
 	},
-	chapter: (title) => {
+	move: {}
+}
+
+const chapter = {
+	create: (title) => {
 		const h2 = make("h2")
 		h2.append(text(title))
 		const chapter = make("ol")
 		chapter.setAttribute("class", "chapter")
 		return [h2, chapter]
+	}
+}
+
+const work = {
+	create: (title) => query("h1").innerHTML = title
+}
+
+export const dom = {
+	end_triggered: (txt, ipt) => {
+		const new_sentence = sentence.create(temp_id())
+		const current = sentence.move.current(new_sentence, txt, ipt)
+		current.after(new_sentence)
+		ipt.focus()
 	},
-	work: (title) => query("h1").innerHTML = title
+	enter: {
+		w_input: (txt,ipt) => {
+			const current = query(".paragraph:has(.current)")
+			const new_paragraph = paragraph.create(temp_id())
+			const new_sentence = sentence.create(temp_id())
+			sentence.move.current(new_sentence, txt, ipt)
+			new_paragraph.append(new_sentence)
+			current.after(new_paragraph)
+			ipt.focus()
+		},
+		no_input: (title) => {
+			section.check_and_transfer()
+			const current = query(".section:has(.current)")
+		}
+	}
 }
 
 export const load = (ipt) => {
-	create.work("Untitled 1")
-	const chapter = create.chapter("Untitled chapter")
-	const section = create.section()
-	const { section, lst_n } = create.section(uid(), "Untitled section")
-	const { paragraph, lst_p } = create.paragraph(uid())
-	const sentence = create.sentence(uid(), ipt)
-
-	if (mode) {
-		lst_p.append(sentence)
-		lst_n.append(paragraph)
-	}
-	else {
-		paragraph.append(sentence)
-		section.append(paragraph)
-	}
-	chapter.at(-1).append(section)
-	query("article").replaceChildren(...chapter)
+	work.create("Untitled 1")
+	const chapter_elms = chapter.create("Untitled chapter")
+	const section_parent = section.create(temp_id(), "Untitled section")
+	const paragraph_parent = paragraph.create(temp_id())
+	const sentence_child = sentence.create(temp_id())
+	sentence_child.append(ipt)
+	paragraph_parent.lastChild.append(sentence_child)
+	section_parent.lastChild.append(paragraph_parent)
+	chapter_elms[1].append(section_parent)
+	query("article").replaceChildren(...chapter_elms)
 	ipt.focus()
 }

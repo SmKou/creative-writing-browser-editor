@@ -28,6 +28,7 @@ const set_title = (level, title) => {
 }
 
 const normalize_title = (title) => title.toLowerCase().split(/[ ]+/).join("-")
+export const temp_id = () => index()
 
 const works = new Map()
 const drafts = new Map()

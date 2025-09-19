@@ -1,4 +1,4 @@
-import { clear, commit, create, load } from './ui'
+import { load, dom } from './ui'
 import 'animate.css'
 import './style.css'
 
@@ -27,11 +27,7 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-				commit.sentence(user_input)
-				const current = document.querySelector(".current")
-				const sentence = create.sentence(uid(), evt.target)
-				current.after(sentence)
-				evt.target.focus()
+				dom.end_triggered(user_input, evt.target)
 				state.shifted = true
 				return;
 			} // end of sentence: new sentence
@@ -57,12 +53,7 @@ const handle_type = evt => {
 	} // "Enter" with no txt: new section
 
 	if (evt.key == "Enter") {
-		commit(user_input)
-		const current = document.querySelector(".paragraph:has(.current)") || document.querySelector("p:has(.current)")
-		const paragraph = create.paragraph(uid())
-		const sentence = create.sentence(uid(), evt.target)
-		paragraph.append(sentence)
-		current.after(paragraph)
+		dim.enter.w_input(user_input, evt.target)
 	} // "Enter" with txt: new paragraph
 
 	const [cmd, ...args] = user_input.split(" ")
