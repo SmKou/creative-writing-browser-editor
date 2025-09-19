@@ -1,86 +1,71 @@
-import {v4 as uid } from 'uuid'
-
 const make = e => document.createElement(e)
 const text = e => document.createTextNode(e)
 const select = e => document.querySelector(e)
-const mode = true
-
-const current = {
-	section: "",
-	paragraph: "",
-	sentence: ""
-}
 
 export const create = {
-	sentence: (id, ipt) => {
-		const current = document.querySelector(".current")
-		if (current) {
-			current.classList.remove("current")
-			ipt.remove()
-		}
-		const sentence = mode ? make("li") : make("span")
+	sentence: (id) => {
+		const sentence = make("li")
 		sentence.id = id
 		sentence.setAttribute("class", "current")
-		if (mode)
-			sentence.classList.add("sentence")
-		sentence.append(ipt)
 		return sentence
 	},
 	paragraph: (id) => {
-		const paragraph = mode ? make("li") : make("p")
+		const paragraph = make("li")
 		paragraph.id = id
-		if (mode) {
-			paragraph.setAttribute("class", "paragraph")
-			const lst_p = make("ol")
-			paragraph.append(lst_p)
-			return { paragraph, lst_p }
-		}
-		return { paragraph }
+		paragraph.setAttribute("class", "paragraph")
+		paragraph.append(make("ol"))
+		return paragraph
 	},
 	section: (id, title) => {
-		const section = mode ? make("li") : make("section")
+		const section = make("li")
 		section.id = id
-		if (mode)
-			section.setAttribute("class", "section")
-		const section_title = make("h3")
-		section_title.append(text(title))
-		section.append(section_title)
-		if (mode) {
-			const lst_n = make("ol")
-			section.append(lst_n)
-			return { section, lst_n }
-		}
-		return { section }
+		section.setAttribute("class", "section")
+		const h3 = make("h3")
+		h3.append(text(title))
+		section.append(h3)
+		section.append(make("ol"))
+		return section
 	},
 	chapter: (title) => {
-		const children = []
-		const chapter_title = make("h2")
-		chapter_title.append(text(title))
-		children.push(chapter_title)
-		if (mode) {
-			const chapter = make("ol")
-			chapter.setAttribute("class", "chapter")
-			children.push(chapter)
-		}
-		return children
+		const h2 = make("h2")
+		h2.append(text(title))
+		const chapter = make("ol")
+		chapter.setAttribute("class", "chapter")
+		return [h2, chapter]
 	},
 	work: (title) => select("h1").innerHTML = title
 }
 
-export const clear = {
-	work: () => select("article").replaceChildren()
-}
-
 export const move = {
-	sentence: (paragraph) => {
-		const sentence = document.querySelector(".current")
-		sentence.remove()
-		paragraph.append(sentence)
+	sentence: {
+		current: (next, txt, ipt) => {
+			const current = select(".current")
+			current.classList.remove("current")
+			ipt.remove()
+			if (txt)
+				current.append(txt)
+			next.classList.add("current")
+			next.append(ipt)
+		},
+		ipt: (level, ent, pos) => {
+			const current = select(".current")
+			current.remove()
+			switch (level) {
+				case "paragraph":
+					ent.append(current)
+					break;
+				case "sentence":
+					switch (pos) {
+						case "after":
+							ent.after(current)
+							break;
+						case "before":
+							ent.before(current)
+							break;
+					}
+			}
+		}
 	}
-}
-
-export const commit = {
-	sentence: (txt) => select(".current").append(text(txt))
 }
 
 export const load = (ipt) => {
