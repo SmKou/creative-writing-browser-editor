@@ -1,9 +1,5 @@
 import {v4 as index } from 'uuid'
 
-export const settings = {
-	view_pgh: false
-}
-
 const untitled = {
 	work: 1,
 	chapter: 1,
@@ -28,7 +24,6 @@ const set_title = (level, title) => {
 }
 
 const normalize_title = (title) => title.toLowerCase().split(/[ ]+/).join("-")
-export const temp_id = () => index()
 
 const works = new Map()
 const drafts = new Map()
@@ -36,81 +31,89 @@ const drafts = new Map()
 const format = {
 	work: (title) => ({
 		title,
+		normalized: normalize_title(title),
 		drafts: [],
 		outline: []
 	}),
 	draft: () => ({
 		order: [],
 		chapters: new Map(),
-				  sections: new Map(),
-				  paragraphs: new Map(),
-				  sentences: new Map()
+		sections: new Map(),
+		paragraphs: new Map(),
+		sentences: new Map()
 	}),
 	chapter: (title) => ({
 		title,
+		normalized: normalize_title(title),
 		order: []
 	}),
 	section: (title) => ({
 		title,
+		normalized: normalize_title(title),
 		order: []
 	}),
 	paragraph: () => [],
 	sentence: () => ""
 }
 
-export const get = {
-	work: (id) => works.get(id || current.work),
-	draft: (id) => drafts.get(id || current.draft),
-	chapter: (id, title) => {
-		const draft = drafts.get(current.draft)
-		if (id && draft)
-			return draft.chapters.get(id || current.chapter)
-		else if (id) {
-			console.error("get.chapter: no draft")
-			return;
-		}
-		else {
-			const normalized = normalize_title(title)
-			const chapters = draft.chapters.values()
-			const chapter = chapters.filter(chapter => normalize_title(chapter.title) === normalized)[0]
-			return chapter
-		}
+const create = {
+	sentence() {
+		const id = index()
+		drafts.get(current.draft).sentences.set(id, format.sentence())
+		drafts.get(current.draft).paragraphs.get(current.paragraph).push(id)
+		return id
 	},
-	section: (id, title) => {
-		const draft = drafts.get(current.draft)
-		if (id && draft)
-			return draft.sections.get(id || current.section)
-		else if (id) {
-			console.error("get.section: no draft")
-			return;
-		}
-		else {
-			const normalized = normalize_title(title)
-			const sections = draft.sections.values()
-			const section = sections.filter(section => normalize_title(section.title) === normalized)[0]
-			return section
-		}
+	paragraph() {
+		const id = index()
+		drafts.get(current.draft).paragraphs.set(id, format.paragraph())
+		const container = current.section
+			? drafts.get(current.draft).sections.get(current.section).order
+			: drafts.get(current.draft).chapters.get(current.chapter).order
+		container.push(id)
+		return id
 	},
-	paragraph: (id) => drafts.get(current.draft).paragraphs.get(id || current.paragraph),
-	sentence: (id) => drafts.get(current.draft).sentences.get(id || current.sentence)
+	section(section_title) {
+		const id = index()
+		const title = set_title(section_title)
+		drafts.get(current.draft).sections.set(id, format.section(title))
+		drafts.get(current.draft).chapters.get(current.chapter).order.push(id)
+		return { id, title }
+	},
+	chapter(chapter_title) {
+		const id = index()
+		const title = set_title(chapter_title)
+		drafts.get(current.draft).chapters.set(id, format.chapter(title))
+		drafts.get(current.draft).order.push(id)
+		return { id, title }
+	},
+	draft() {
+		const id = index()
+		drafts.set(id, format.draft())
+		works.get(current.work).drafts.push(id)
+		return id
+	},
+	work(work_title) {
+		const id = index()
+		const title = set_title(work_title)
+		works.set(id, format.work(title))
+		return { id, title }
+	}
 }
 
 const set = {
-	work: (id, title) => works.set(id, format.work(title)),
-	draft: (id) => drafts.set(id, format.draft()),
-	chapter: (id, title) => drafts.get(current.draft).chapters.set(id, format.chapter(title)),
-	section: (id, title) => drafts.get(current.draft).sections.set(id, format.section(title)),
-	paragraph: (id) => drafts.get(current.draft).paragraphs.set(id, format.paragraph()),
-	sentence: (id) => drafts.get(current.draft).sentences.set(id, format.sentence())
+	segment: (level, id) => {
+		const last = current[level]
+		current[level] = id
+		return { last, id }
+	},
+	draft: (id) => current.draft = id,
+	work: (id) => current.work = id
 }
 
-export const create_segment = {
-	sentence: () => {
-		const data = { last: current.sentence }
-		const id = index()
-		drafts.get(current.draft).paragraphs.get(current.paragraph).push(id)
-		current.sentence = id
-		data.id = id
-		return data
-	}
+const get = {
+	segment: (level, id) => drafts.get(current.draft)[level + "s"].get(id || current[level]),
+	draft: (id) => drafts.get(id || current.draft),
+	work: (id) => works.get(id || current.work)
 }
+
+export default {}

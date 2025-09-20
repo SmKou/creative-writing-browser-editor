@@ -1,10 +1,10 @@
 /* UI Management
- * Case: User writes sentence, press end trigger ("| ) after end mark (.|?|!)
+ * Case:
  * - create new sentence
  * - add txt to .current sentence and move .current to new sentence
  * - last.after(new sentence)
  *
- * Case: User writes sentence, press Enter after end mark (.|?|!)
+ * Case:
  * - create new paragraph
  * - create new sentence
  * - add txt to .current sentence and move .current to new sentence
@@ -48,60 +48,21 @@ const selected = {
 	sentence: ""
 }
 
-/* Organization
- * Interface refers to functionality by action then level, source, or target
- * Organized here by level as functionality differs more by level than source
- * or target
- */
-
-const sentence = {
-	create: (id) => {
+const create = {
+	sentence(id) {
 		const sentence = make("li")
 		sentence.id = id
 		sentence.setAttribute("class", "current")
 		return sentence
 	},
-	move: {
-		current: (next, txt, ipt) => {
-			const current = query(".current")
-			current.classList.remove("current")
-			ipt.remove()
-			if (txt)
-				current.append(txt)
-			next.classList.add("current")
-			next.append(ipt)
-			return current
-		},
-		ipt: (level, ent, pos) => {
-			const current = query(".current")
-			current.remove()
-			switch (level) {
-				case "paragraph":
-					ent.append(current)
-					break;
-				case "sentence":
-					if (pos === "after")
-						ent.after(current)
-					else if (pos === "before")
-						ent.before(current)
-			}
-		}
-	}
-}
-
-const paragraph = {
-	create: (id) => {
+	paragraph(id) {
 		const paragraph = make("li")
 		paragraph.id = id
 		paragraph.setAttribute("class", "paragraph")
 		paragraph.append(make("ol"))
 		return paragraph
 	},
-	move: {}
-}
-
-const section = {
-	create: (id, title) => {
+	section(id, title) {
 		const section = make("li")
 		section.id = id
 		section.setAttribute("class", "section")
@@ -111,11 +72,7 @@ const section = {
 		section.append(make("ol"))
 		return section
 	},
-	move: {}
-}
-
-const chapter = {
-	create: (title) => {
+	chapter(title) {
 		const h2 = make("h2")
 		h2.append(text(title))
 		const chapter = make("ol")
@@ -124,11 +81,56 @@ const chapter = {
 	}
 }
 
-const work = {
-	create: (title) => query("h1").innerHTML = title
+const move = {
+	sentence: {
+		current(next, txt, ipt) {
+			const current = query(".current")
+			current.classList.remove("current")
+			ipt.remove()
+			if (txt)
+				current.append(txt)
+			next.classList.add("current")
+			next.append(ipt)
+		},
+		ipt(level, ent, pos) {
+			const current = query(".current")
+			current.remove()
+			switch (level) {
+				case "paragraph":
+					ent.append(current)
+					break;
+				case "sentence":
+					switch (pos) {
+						case "after":
+							ent.after(current)
+							break;
+						case "before":
+							ent.before(current)
+							break;
+					}
+					break;
+			}
+		}
+	},
+	paragraph: {},
+	section: {}
+}
+
+const name = {
+	work(title) {
+		query("h1").innerHTML = title
+	},
+	chapter(title) {
+		query("h2").innerHTML = title
+	},
+	section(id, title) {
+		query(`#${id} h3`).innerHTML = title
+	}
 }
 
 export const dom = {
+
+
 	end_triggered: (txt, ipt) => {
 		const new_sentence = sentence.create(temp_id())
 		const current = sentence.move.current(new_sentence, txt, ipt)
@@ -148,11 +150,14 @@ export const dom = {
 		no_input: (title) => {
 			section.check_and_transfer()
 			const current = query(".section:has(.current)")
+			const new_section = section.create(temp_id(), title)
+			const new_paragraph =
 		}
 	}
 }
 
 export const load = (ipt) => {
+
 	work.create("Untitled 1")
 	const chapter_elms = chapter.create("Untitled chapter")
 	const section_parent = section.create(temp_id(), "Untitled section")
