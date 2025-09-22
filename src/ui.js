@@ -84,7 +84,46 @@ export default {
 	load(data, ipt) {
 		name.work(data.work.title)
 		const chapter = create.chapter(data.chapter.title)
-		if (data.toc) {}
+		if (data.toc) {
+			const decompose = (level, toc_pointer = data.toc, ctt_pointer = data.ctt) => {
+				switch (level) {
+					case "section":
+						const section_ids = Object.keys(toc_pointer)
+						const chapter_sections = []
+						section_ids.forEach((n_id, idx) => {
+							const section = create.section(n-id)
+							const paragraphs = decompose("paragraph", toc_pointer[n_id], ctt_pointer[idx])
+							for (const paragraph of paragraphs)
+								section.lastChild.append(paragraph)
+							chapter_sections.push(section)
+						})
+						return chapter_sections
+					case "paragraph":
+						const paragraph_ids = Object.keys(toc_pointer)
+						const container_paragraphs = []
+						paragraph_ids.forEach((p_id, idx) => {
+							const paragraph = create.paragraph(p_id)
+							const sentences = decompose("sentence", toc_pointer[p_id], ctt_pointer[idx])
+							for (const sentence of sentences)
+								paragraph.append(sentence)
+							container_paragraphs.push(paragraph)
+						})
+						return container_paragraphs
+					case "sentence":
+						const sentence_ids = toc_pointer
+						const paragraph_sentences = []
+						sentence_ids.forEach((s_id) => {
+							const sentence = create.sentence(s_id)
+							sentence.append(text(ctt_pointer))
+							paragraph_sentences.push(sentence)
+						})
+						return paragraph_sentences
+				}
+			}
+			const containers = decompose(data.ctt[0][0][0] ? "section" : "paragraph")
+			for (const container of containers)
+				chapter.at(-1).append(container)
+		}
 		else {
 			const section = create.section(data.section.id, data.section.title)
 			const paragraph = create.paragraph(data.paragraph.id)
