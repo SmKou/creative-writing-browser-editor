@@ -16,11 +16,33 @@ const end_mark_enter = (txt, ipt) => {
 
 // Enter + no_input
 // command: "###"
-const enter = (ipt, user_input) => {
-	store.move.section.pre_section()
+// command: create section
+const enter = (user_input) => {
 	const { id: section_id, title: section_title } = store.create.section(user_input)
-	const { id: paragraph_id } = store.create.paragraph()
-	dom.enter(section_id, section_title, paragraph_id, ipt)
+	store.move.paragraph()
+	dom.enter(section_id, section_title)
+}
+
+// command: "##"
+// command: create chapter
+const create_chapter = (ipt, title) => {
+	const data = store.create.cascade("chapter", title)
+	const { title: chapter_title } = data.chapter
+	const { id: section_id, title: section_title } = data.section
+	const { id: paragraph_id } = data.paragraph
+	dom.cmd_create_chapter(chapter_title, section_id, section_title, paragraph_id, ipt)
+}
+
+const create_draft = (ipt) => {
+	const data = store.create.cascade("draft")
+	dom.cmd_create_draft(data, ipt)
+}
+
+// command: "#"
+// command: create work
+const create_work = (ipt, title) => {
+	const data = store.create.cascade("work", title)
+	dom.cmd_create_work(data, ipt)
 }
 
 const init = (ipt) => {
@@ -34,4 +56,21 @@ export default {
 	end_trigger,		// new sentence
 	end_mark_enter,		// new paragraph
 	enter,				// new section
+	create: (user_input, ipt) => {
+		const [level, ...title] = user_input
+		switch (level) {
+			case "work":
+				create_work(ipt, title)
+				break;
+			case "draft":
+				create_draft(ipt)
+				break;
+			case "chapter":
+				create_chapter(ipt, title)
+				break;
+			case "section":
+				enter(title)
+				break;
+		}
+	}
 }

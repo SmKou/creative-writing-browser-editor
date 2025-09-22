@@ -27,8 +27,9 @@ const handle_type = evt => {
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
-				dom.end_triggered(user_input, evt.target)
+				controller.end_trigger(user_input, evt.target)
 				state.shifted = true
+				evt.target.focus()
 				return;
 			} // end of sentence: new sentence
 			else { state.end_quote = false }
@@ -38,55 +39,41 @@ const handle_type = evt => {
 	}
 
 	if (state.end_marks.includes(evt.key)) {
-		if (!state.end_quote) { state.end_quote = true }
+		if (!state.end_quote) {
+			state.end_quote = true
+		}
 		state.last_key = evt.key
 		return;
 	}
 
 	if (!user_input) {
-		const current = document.querySelector(".section:has(.current)") || document.querySelector("section:has(.current)")
-		const section = create.section(uid(), "untitled")
-		const paragraph = create.paragraph(uid())
-		move(paragraph)
-		section.append(paragraph)
-		current.after(section)
+		controller.enter()
 	} // "Enter" with no txt: new section
 
 	if (evt.key == "Enter") {
-		dim.enter.w_input(user_input, evt.target)
+		controller.end_mark_enter(user_input, evt.target)
+		state.last_key = ""
+		state.shifted = true
+		evt.target.focus()
+		return;
 	} // "Enter" with txt: new paragraph
 
 	const [cmd, ...args] = user_input.split(" ")
-	const segs = {
-		section: "",
-		paragraph: "",
-		sentence: ""
-	}
 	switch (cmd) {
 		case "#":
-			create.work(args)
-			clear.work()
-			break;
+			controller.create(`work ${args.join(" ")}`, evt.target)
+			break;	// new work
 		case "##":
-			const chapter = create.chapter(args)
-			document.querySelector("article").replaceChildren(...chapter)
-			segs.section = create.section(uid(), "")
-			segs.paragraph = create.paragraph(uid())
-			move.sentence(segs.paragraph)
-			segs.section.append(segs.paragraph)
-			chapter.at(-1).append(segs.section)
+			controller.create(`chapter ${args.join(" ")}`, evt.target)
 			break;	// new chapter
 		case "###":
-			const current = document.querySelector(".section:has(.current)") || document.querySelector("section:has(.current)")
-			segs.section = create.section(uid(), args)
-			segs.paragraph = create.paragraph(uid())
-			segs.sentence = create.sentence(uid(), evt.target)
-			segs.paragraph.append(segs.sentence)
-			segs.section.append(segs.paragraph)
-			current.after(segs.section)
+			controller.enter(args)
 			break;	// new section
+		case "create":
+			controller.create(args.join(" "), evt.target)
+			break;
 		default:
-			// does command exist?
+			console.log("shouldn't be")
 	}
 	state.last_key = ""
 	state.shifted = true
@@ -98,8 +85,9 @@ ipt.id = "ipt"
 ipt.addEventListener("keydown", handle_type)
 ipt.addEventListener("keyup", evt => {
 	if (state.shifted) {
-		evt.target.value = ""
 		state.shifted = false
+		evt.target.value = ""
+		evt.target.focus()
 	}
 	if (evt.key == "Backspace")
 		evt.preventDefault()

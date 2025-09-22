@@ -202,6 +202,7 @@ const create = {
 		return { id, title }
 	},
 	section(section_title) {
+		console.log(section_title)
 		const id = index()
 		const title = set_title("section", section_title)
 		const draft = db.drafts.get(current.draft)
@@ -214,10 +215,7 @@ const create = {
 		const id = index()
 		const draft = db.drafts.get(current.draft)
 		draft.paragraphs.set(id, format.paragraph())
-		const container = current.section
-		? draft.sections.get(current.section)
-		: draft.chapters.get(current.chapter)
-		container.order.push(id)
+		draft.sections.get(current.section).order.push(id)
 		current.paragraph = id
 		return { id }
 	},
@@ -259,22 +257,9 @@ const create = {
 }
 
 const move = {
-	section: {
-		pre_section() {
-			if (current.section)
-				return false
-			const draft = db.drafts.get(current.draft)
-			const chapter = draft.chapters.get(current.chapter)
-			if (!chapter.order.length)
-				return false
-			const { id, title } = create.section("")
-			const section = draft.sections.get(id)
-			while (chapter.order.length)
-				section.order.push(chapter.order.shift())
-			chapter.order.push(id)
-			return { id, title }
-		}
-	}
+	section: {},
+	paragraph: {},
+	sentence: {}
 }
 
 const load = {
@@ -288,14 +273,13 @@ const load = {
 		}
 		const draft = db.drafts.get(current.draft)
 		const chapter = draft.chapters.get(current.chapter)
-		const level = draft.sections.has(chapter.order[0])
-		? "section"
-		: "paragraph"
 		const compose = (level, ord = [...chapter.order], toc = {}, ctt = []) => {
 			switch (level) {
 				case "section":
+					data.ns = {}
 					ord.forEach(n_id => {
 						const section = draft.sections.get(n_id)
+						data.ns[n_id] = section.title
 						const sub_level = comp("paragraph", [...section.order])
 						toc[n_id] = sub_level.toc
 						ctt.push(sub_level.ctt)
@@ -316,7 +300,7 @@ const load = {
 					}
 			}
 		}
-		const { toc, ctt } = compose(level)
+		const { toc, ctt } = compose("section")
 		data.toc = toc
 		data.ctt = ctt
 		return data
