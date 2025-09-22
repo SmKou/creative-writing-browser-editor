@@ -1,5 +1,3 @@
-import { temp_id } from "./write"
-
 const make = e => document.createElement(e)
 const text = e => document.createTextNode(e)
 const query = e => document.querySelector(e)
@@ -67,10 +65,6 @@ const move = {
 					break;
 			}
 		}
-	},
-	paragraph: {},
-	section: {
-		has_pre_section: () =>
 	}
 }
 
@@ -87,6 +81,22 @@ const name = {
 }
 
 export default {
+	load(data, ipt) {
+		name.work(data.work.title)
+		const chapter = create.chapter(data.chapter.title)
+		if (data.toc) {}
+		else {
+			const section = create.section(data.section.id, data.section.title)
+			const paragraph = create.paragraph(data.paragraph.id)
+			const sentence = create.sentence(data.sentence.id)
+			sentence.append(ipt)
+			paragraph.lastChild.append(sentence)
+			section.lastChild.append(paragraph)
+			chapter.at(-1).append(section)
+		}
+		query("article").replaceChildren(...chapter)
+		ipt.focus()
+	},
 	end_trigger(sentence_id, txt, ipt) {
 		const new_sentence = create.sentence(sentence_id)
 		const current = move.sentence.current(new_sentence, txt, ipt)
@@ -102,45 +112,12 @@ export default {
 		current.after(new_paragraph)
 		ipt.focus()
 	},
-	enter(section_id, section_title, paragraph_id, sentence_id, ipt) {
-
+	enter(section_id, section_title, paragraph_id, ipt) {
 		const new_section = create.section(section_id, section_title)
 		const new_paragraph = create.paragraph(paragraph_id)
-		const current = query(".section:has(.current)")
-		sentence.move.ipt("paragraph", new_paragraph)
+		move.sentence.ipt("paragraph", new_paragraph)
 		new_section.append(new_paragraph)
-	}
+		ipt.focus()
+	},
 
-	enter: {
-		w_input: (txt,ipt) => {
-			const current =
-			const new_paragraph = paragraph.create(temp_id())
-			const new_sentence = sentence.create(temp_id())
-			sentence.move.current(new_sentence, txt, ipt)
-			new_paragraph.append(new_sentence)
-			current.after(new_paragraph)
-			ipt.focus()
-		},
-		no_input: (title) => {
-			section.check_and_transfer()
-			const current = query(".section:has(.current)")
-			const new_section = section.create(temp_id(), title)
-			const new_paragraph =
-		}
-	}
-}
-
-export const load = (ipt) => {
-
-	work.create("Untitled 1")
-	const chapter_elms = chapter.create("Untitled chapter")
-	const section_parent = section.create(temp_id(), "Untitled section")
-	const paragraph_parent = paragraph.create(temp_id())
-	const sentence_child = sentence.create(temp_id())
-	sentence_child.append(ipt)
-	paragraph_parent.lastChild.append(sentence_child)
-	section_parent.lastChild.append(paragraph_parent)
-	chapter_elms[1].append(section_parent)
-	query("article").replaceChildren(...chapter_elms)
-	ipt.focus()
 }

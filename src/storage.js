@@ -13,7 +13,8 @@ const format = {
 	work: (title) => ({
 		title,
 		normalized: normalize_title(title),
-		drafts_histories: new Map()
+		drafts: []
+		// drafts_histories: new Map()
 	}),
 	draft: () => ({
 		untitled: 1,				// used for untitled chapters
@@ -148,6 +149,7 @@ const local = {
 			const chapter = draft.chapters.get(chapter_id || current.chapter.id)
 			const n = chapter.untitled
 			chapter.untitled++
+			return n
 		}
 	},
 	remove: {
@@ -162,16 +164,16 @@ const local = {
 	}
 }
 
-const set_title = (level, title, { draft, chapter }) => {
+const set_title = (level, title) => {
 	if (title)
 		return title
 	switch (level) {
 		case "work":
 			return "Untitled-" + local.untitled.work()
 		case "chapter":
-			return "Untitled-" + local.untitled.chapter(draft)
+			return "Untitled-" + local.untitled.chapter(current.draft)
 		case "section":
-			return "Untitled-" + local.untitled.section(draft, chapter)
+			return "Untitled-" + local.untitled.section(current.draft, current.chapter)
 	}
 }
 
@@ -256,10 +258,6 @@ const create = {
 	}
 }
 
-/* ------------------------------------------------------------ MOVE
- * Used for moving data between entities, usually on same segment level
- */
-
 const move = {
 	section: {
 		pre_section() {
@@ -282,126 +280,64 @@ const move = {
 const load = {
 	last_session() {
 		const levels = Object.keys(current).slice(0, -1)
-		const data = { }
+		const data = {}
 		for (const level of levels) {
 			if (!current[level])
-				return {...data, ...cascade(level, "")}
+				return {...data, ...create.cascade(level, "")}
 			data[level] = current.get(level)
-			if (data[level].order) {
-				const ids = data[level].order
-				data.otln.
+		}
+		const draft = db.drafts.get(current.draft)
+		const chapter = draft.chapters.get(current.chapter)
+		const level = draft.sections.has(chapter.order[0])
+		? "section"
+		: "paragraph"
+		const compose = (level, ord = [...chapter.order], toc = {}, ctt = []) => {
+			switch (level) {
+				case "section":
+					ord.forEach(n_id => {
+						const section = draft.sections.get(n_id)
+						const sub_level = comp("paragraph", [...section.order])
+						toc[n_id] = sub_level.toc
+						ctt.push(sub_level.ctt)
+					})
+					return { toc, ctt }
+				case "paragraph":
+					ord.forEach(p_id => {
+						const paragraph = draft.paragraphs.get(p_id)
+						const sub_level = comp("sentence", [...paragraph])
+						toc[p_id] = sub_level.toc
+						ctt.push(sub_level.ctt)
+					})
+					return { toc, ctt }
+				case "sentence":
+					return {
+						toc: ord,
+						ctt: ord.map(s_id => draft.sentences.get(s_id))
+					}
 			}
 		}
+		const { toc, ctt } = compose(level)
+		data.toc = toc
+		data.ctt = ctt
 		return data
 	}
 }
 
-/* ------------------------------------------------------------ LOAD
- * Used for loading content into storage
- * - spinup: TEST
- *   onload = user's last session (consists of all segments)
- *   if none: creates session (new work)
- * - fileread: TODO
- *   user uploads file of content to be organized and stored
- *   file types accepted: .md, .txt
- */
+const save = {
+	sentence(txt) {
+		db.drafts.get(current.draft).sentences.set(current.sentence, txt)
+	}
+}
 
-const load_spinup = () => {
-	const data = local.active()
-	const draft = db.drafts.get(data.draft.id)
-	const chapter = localStorage.getItem("active-chapter")
-	if (!chapter) {
-		const chapter_id = draft.order.at(-1)
-		if (!chapter_id) {
-			const { id, title } = create.chapter("")
-			data.chapter.id = id
-			data.chapter.title = title
-			localStorage.setItem("active-chapter", id)
-		}
-		else {
-			data.chapter.id = chapter_id
-			data.chapter.title = draft.chapters.get(chapter_id).title
-			localStorage.setItem("active-chapter", chapter_id)
-		}
-	}
-	else {
-		data.chapter.id = chapter
-		data.chapter.title = draft.chapters.get(chapter).title
-	}
-
-	const section = localStorage.getItem("active-section")
-	if (!section) {
-		const section_id = draft.chapters.get(data.chapter.id).order.at(-1)
-		if (section_id) {
-			data.section.id = section_id
-			data.section.title = draft.sections.get(section_id).title
-			localStorage.setItem("active-section", section_id)
-		}
-		else { localStorage.setItem("active-section", "") }
-	}
-	else {
-		data.section.id = section
-		data.section.title = draft.sections.get(section).title
-	}
-
-	const paragraph = localStorage.getItem("active-paragraph")
-	if (!paragraph) {
-		const paragraph_id = data.section
-		? draft.sections.get(data.section.id).order.at(-1)
-		: draft.chapters.get(data.chapter.id).order.at(-1)
-		if (!paragraph_id) {
-			const id = create.paragraph({
-				draft: data.draft.id,
-				chapter: data.chapter.id,
-				section: data.section?.id
-			})
-			data.paragraph.id = id
-			localStorage.setItem("active-paragraph", id)
-		}
-		else {
-			data.paragraph.id = paragraph_id
-			localStorage.setItem("active-paragraph", paragraph_id)
-		}
-	}
-	else { data.paragraph.id = paragraph }
-
-	const sentence = localStorage.getItem("active-sentence")
-	if (!sentence) {
-		const sentence_id = draft.paragraphs.get(data.paragraph.id).at(-1)
-		if (!sentence_id) {
-			const id = create.sentence({ draft: data.draft, paragraph: data.paragraph })
-			data,sentence.id = id
-			localStorage.setItem("active-sentence", id)
-		}
-		else {
-			data.sentence.id = sentence_id
-			localStorage.setItem("active-sentence", sentence_id)
-		}
-	}
-	else { data.sentence.id = sentence }
-	return data
+const test_init_wipe = () => {
+	localStorage.setItem("untitled-work", 1)
+	localStorage.setItem("unassigned-untitled", "")
 }
 
 export default {
-	current: {
-		chapter: () => current_chapter.id(),
-		section: () => current_section.id(),
-		paragraph: () => current_paragraph.id(),
-		sentence: () => current_sentence.id(),
-		get: {
-			chapter: () => current_chapter.data(),
-			section: () => current_section.data(),
-			paragraph: () => current_paragraph.data(),
-			sentence: () => current_sentence.data()
-		}
-	},
-	create: {
-		work: () => create_work()
-	},
-	local: {
-		untitled: {}
-	},
-	load: {
-		spinup: () => load_spinup()
-	}
+	create,
+	move,
+	load,
+	save,
+	test: test_init_wipe
 }

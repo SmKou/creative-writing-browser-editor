@@ -127,11 +127,24 @@ Defaults
 Action: Delete, or remove, location from draft
 
 Flags
-- -f <feature> <feature-keyword>: identify feature by feature keyword to connect
+- -f <feature> <feature-keyword>: connect to feature by feature keyword
 - -d: permanent delete
 - -a: apply to all
 
 Defaults
 - does not remove from draft segments, only orders
 
-### Case:
+### Case: rcd <loc>
+Action: Record location => add note or comment to location, or add location to feature (entity)
+
+Notes
+- can be used to create a save point and produce a backup for downlaod
+
+Flags
+- -m <type>: denotes note is comment, todo|rmdr (appears in outline)
+- -f <feature> <feature-keyword>: connect to feature by feature keyword
+- -s <[dn]>: create save point (optional: title), dn=download
+
+Defaults
+- add note to location
+- if comment: type=todo

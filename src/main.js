@@ -1,4 +1,4 @@
-import { load, dom } from './ui'
+import controller from './write'
 import 'animate.css'
 import './style.css'
 
@@ -105,4 +105,4 @@ ipt.addEventListener("keyup", evt => {
 		evt.preventDefault()
 })
 document.addEventListener("click", () => ipt.focus())
-load(ipt)
+controller.init(ipt)
