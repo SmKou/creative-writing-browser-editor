@@ -66,6 +66,26 @@ ipt.addEventListener("keydown", evt => {
 		case "create":
 			controller.create(args.join(" "), evt.target)
 			break;
+		/*
+		case "add":
+			break;
+		case "insert":
+		case "ins":
+			break;
+		case "name":
+		case "rename":
+		case "nm":
+			break;
+		case "move":
+		case "mv":
+			break;
+		case "remove":
+		case "rm":
+			break;
+		case "record":
+		case "rcd":
+			break;
+		*/
 		default:
 			console.error("unspecified command entered")
 	}
