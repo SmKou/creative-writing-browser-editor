@@ -10,82 +10,67 @@ const state = {
 	shifted: false
 }
 const action_keys = [...state.end_marks, ...state.end_trigger, "Enter"]
-
-const handle_type = evt => {
-	if (evt.key == "Backspace" && !evt.target.value) {
-		evt.preventDefault()
-		// back
-		evt.target.focus()
-	}
-
-	if (!action_keys.includes(evt.key)) {
-		state.last_key = evt.key
-		return;
-	} // non-action key: continue writing
-
-	const end_action = (key) => {
-		state.last_key = key
-		state.shifted = true
-		evt.target.focus()
-	}
-
-	const user_input = evt.target.value.split("\n")[0]
-	if (state.end_trigger.includes(evt.key)) {
-		if (state.end_quote) {
-			if (state.end_marks.includes(state.last_key)) {
-				controller.end_trigger(user_input, evt.target)
-				end_action("")
-				return;
-			} // end of sentence: new sentence
-			else { state.end_quote = false }
-		}
-		state.last_key = evt.key
-		return;
-	}
-
-	if (state.end_marks.includes(evt.key)) {
-		if (!state.end_quote) {
-			state.end_quote = true
-		}
-		state.last_key = evt.key
-		return;
-	}
-
-	if (!user_input) {
-		controller.enter()
-		end_action("")
-		return;
-	} // "Enter" with no txt: new section
-
-	if (evt.key == "Enter") {
-		controller.end_mark_enter(user_input, evt.target)
-		end_action("")
-		return;
-	} // "Enter" with txt: new paragraph
-
-	const [cmd, ...args] = user_input.split(" ")
-	switch (cmd) {
-		case "#":
-			controller.create(`work ${args.join(" ")}`, evt.target)
-			break;	// new work
-		case "##":
-			controller.create(`chapter ${args.join(" ")}`, evt.target)
-			break;	// new chapter
-		case "###":
-			controller.enter(args)
-			break;	// new section
-		case "create":
-			controller.create(args.join(" "), evt.target)
-			break;
-		default:
-			console.log("shouldn't be")
-	}
-	end_action("")
+const end_action = () => {
+	state.last_key = ""
+	state.shifted = true
+	evt.target.focus()
 }
 
 const ipt = document.createElement("textarea")
 ipt.id = "ipt"
-ipt.addEventListener("keydown", handle_type)
+ipt.addEventListener("keydown", evt => {
+	if (evt.key == "Backspace" && !evt.target.value) {
+		evt.preventDefault()
+		// Undo: use of backspace between sentences, paragraphs, and sections
+		evt.target.focus()
+	}
+	if (!action_keys.includes(evt.key)) {
+		state.last_key = evt.key
+		return;
+	}
+	const user_input = evt.target.value.split("\n")[0]
+	const [cmd, ...args] = user_input.split(" ")
+	if (state.end_trigger.includes(evt.key)) {
+		if (state.end_quote) {
+			if (state.end_marks.includes(state.last_key)) {
+				controller.end_trigger(user_input, evt.target)
+				end_action()
+				return;
+			}
+			else
+				state.end_quote = false
+		}
+		state.last_key = evt.key
+		return;
+	}
+	if (evt.key == "Enter") {
+		if (!user_input) {
+			controller.enter()
+		} // "Enter" with no txt: new section
+		else {
+			controller.end_mark_enter(user_input, evt.target)
+		} // "Enter" with txt: new paragraph
+		end_action()
+		return;
+	}
+	switch (cmd) {
+		case "#":
+			controller.create(`work ${args.join(" ")}`, evt.target)
+			break;
+		case "##":
+			controller.create(`chapter ${args.join(" ")}`, evt.target)
+			break;
+		case "###":
+			controller.enter(args)
+			break; // new section
+		case "create":
+			controller.create(args.join(" "), evt.target)
+			break;
+		default:
+			console.error("unspecified command entered")
+	}
+	end_action()
+})
 ipt.addEventListener("keyup", evt => {
 	if (state.shifted) {
 		state.shifted = false
