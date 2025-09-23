@@ -19,7 +19,7 @@ const end_mark_enter = (txt, ipt) => {
 // command: create section
 const enter = (user_input) => {
 	const { id: section_id, title: section_title } = store.create.section(user_input)
-	store.move.paragraph()
+	store.move.paragraph.ipt()
 	dom.enter(section_id, section_title)
 }
 

@@ -23,13 +23,18 @@ const handle_type = evt => {
 		return;
 	} // non-action key: continue writing
 
+	const end_action = (key) => {
+		state.last_key = key
+		state.shifted = true
+		evt.target.focus()
+	}
+
 	const user_input = evt.target.value.split("\n")[0]
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
 				controller.end_trigger(user_input, evt.target)
-				state.shifted = true
-				evt.target.focus()
+				end_action("")
 				return;
 			} // end of sentence: new sentence
 			else { state.end_quote = false }
@@ -48,13 +53,13 @@ const handle_type = evt => {
 
 	if (!user_input) {
 		controller.enter()
+		end_action("")
+		return;
 	} // "Enter" with no txt: new section
 
 	if (evt.key == "Enter") {
 		controller.end_mark_enter(user_input, evt.target)
-		state.last_key = ""
-		state.shifted = true
-		evt.target.focus()
+		end_action("")
 		return;
 	} // "Enter" with txt: new paragraph
 
@@ -75,9 +80,7 @@ const handle_type = evt => {
 		default:
 			console.log("shouldn't be")
 	}
-	state.last_key = ""
-	state.shifted = true
-	evt.target.focus()
+	end_action("")
 }
 
 const ipt = document.createElement("textarea")

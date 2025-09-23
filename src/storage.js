@@ -202,30 +202,32 @@ const create = {
 		return { id, title }
 	},
 	section(section_title) {
-		console.log(section_title)
 		const id = index()
 		const title = set_title("section", section_title)
 		const draft = db.drafts.get(current.draft)
 		draft.sections.set(id, format.section(title))
 		draft.chapters.get(current.chapter).order.push(id)
+		const last = current.section || ""
 		current.section = id
-		return { id, title }
+		return { id, title, last }
 	},
 	paragraph() {
 		const id = index()
 		const draft = db.drafts.get(current.draft)
 		draft.paragraphs.set(id, format.paragraph())
 		draft.sections.get(current.section).order.push(id)
+		const last = current.paragraph || ""
 		current.paragraph = id
-		return { id }
+		return { id, last }
 	},
 	sentence() {
 		const id = index()
 		const draft = db.drafts.get(current.draft)
 		draft.sentences.set(id, format.sentence())
 		draft.paragraphs.get(current.paragraph).push(id)
+		const last = current.sentence || ""
 		current.sentence = id
-		return { id }
+		return { id, last }
 	},
 	cascade(level, segment_title) {
 		const data = {}
@@ -258,7 +260,16 @@ const create = {
 
 const move = {
 	section: {},
-	paragraph: {},
+	paragraph: {
+		in: () => db.drafts.get(current.draft).paragraphs.get(current.paragraph).length - 1 > 0,
+		ipt: () => {
+			const draft = db.drafts.get(current.draft)
+			const pre_section_id = draft.chapters.get(current.chapter).order.at(-2)
+			const paragraph_id = draft.sections.get(pre_section_id).order.pop()
+			console.log(current.paragraph, paragraph_id)
+			draft.sections.get(current.section).order.push(paragraph_id)
+		}
+	},
 	sentence: {}
 }
 
@@ -273,7 +284,7 @@ const load = {
 		}
 		const draft = db.drafts.get(current.draft)
 		const chapter = draft.chapters.get(current.chapter)
-		const compose = (level, ord = [...chapter.order], toc = {}, ctt = []) => {
+		const { toc, ctt } = ((level, ord = [...chapter.order], toc = {}, ctt = []) => {
 			switch (level) {
 				case "section":
 					data.ns = {}
@@ -299,8 +310,7 @@ const load = {
 						ctt: ord.map(s_id => draft.sentences.get(s_id))
 					}
 			}
-		}
-		const { toc, ctt } = compose("section")
+		})("section")
 		data.toc = toc
 		data.ctt = ctt
 		return data

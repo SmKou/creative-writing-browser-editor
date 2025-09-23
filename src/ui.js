@@ -70,7 +70,8 @@ const move = {
 					break;
 			}
 		}
-	}
+	},
+	paragraph: {}
 }
 
 const name = {
@@ -152,9 +153,15 @@ export default {
 		new_paragraph.lastChild.append(new_sentence)
 		current.after(new_paragraph)
 	},
-	enter(section_id, section_title) {
+	enter(section_id, section_title, is_empty, paragraph_id) {
 		const new_section = create.section(section_id, section_title)
-		move.sentence.ipt("paragraph", new_section.lastChild)
+		if (is_empty) {
+			move.sentence.ipt("paragraph", new_section.lastChild)
+		}
+		else {
+			const new_paragraph = create.paragraph(paragraph_id)
+			move.paragraph.ipt()
+		}
 		query(".chapter").append(new_section)
 	},
 	cmd_create_chapter(chapter_title, section_id, section_title, paragraph_id, sentence_id, ipt) {
