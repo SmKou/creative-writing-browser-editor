@@ -2,6 +2,8 @@ const make = e => document.createElement(e)
 const text = e => document.createTextNode(e)
 const query = e => document.querySelector(e)
 
+/* ------------------------------------------------------- UI actions */
+
 const create = {
 	sentence(id) {
 		const sentence = make("li")
@@ -37,16 +39,16 @@ const create = {
 const move = {
 	sentence: {
 		current(next, txt, ipt) {
-			const current = query(".current")
-			if (current)
-				current.classList.remove("current")
 			ipt.remove()
-			if (txt)
-				current.append(txt)
+			const current = query(".current")
+			if (current) {
+				current.classList.remove("current")
+				current.append(text(txt) || "")
+			}
 			next.classList.add("current")
 			next.append(ipt)
 			return current
-		},
+		}, // move the .current class
 		ipt(level, ent, pos) {
 			const current = query(".current")
 			switch (level) {
@@ -69,29 +71,26 @@ const move = {
 					}
 					break;
 			}
-		}
+		} // move the ipt element's container'
 	},
 	paragraph: {}
 }
 
 const name = {
-	work(title) {
-		query("h1").innerHTML = title
-	},
-	chapter(title) {
-		query("h2").innerHTML = title
-	},
-	section(id, title) {
-		query(`#${id} h3`).innerHTML = title
-	}
+	work(title) { query("h1").innerHTML = title },
+	chapter(title) { query("h2").innerHTML = title },
+	section(id, title) { query(`#${id} h3`).innerHTML = title }
 }
 
-export default {
-	load(data, ipt) {
-		name.work(data.work.title)
+/* ------------------------------------------------------- UI commands */
+
+const load = {
+	last_session(data, ipt) {
+		name.work()
 		const chapter = create.chapter(data.chapter.title)
 		if (data.toc) {
-			const decompose = (level, toc_pointer = data.toc, ctt_pointer = data.ctt) => {
+			// assume sections by default (diff: data depth)
+			const containers = ((level, toc_pointer = data.toc, ctt_pointer = data.ctt) => {
 				switch (level) {
 					case "section":
 						const section_ids = Object.keys(toc_pointer)
@@ -124,8 +123,7 @@ export default {
 						})
 						return paragraph_sentences
 				}
-			}
-			const containers = decompose(data.ctt[0][0][0] ? "section" : "paragraph")
+			})("section")
 			containers.forEach(container => chapter.at(-1).append(container))
 		}
 		else {
@@ -139,7 +137,11 @@ export default {
 		}
 		query("article").replaceChildren(...chapter)
 		ipt.focus()
-	},
+	}
+}
+
+export default {
+	load,
 	end_trigger(sentence_id, txt, ipt) {
 		const new_sentence = create.sentence(sentence_id)
 		const current = move.sentence.current(new_sentence, txt, ipt)
@@ -164,22 +166,24 @@ export default {
 		}
 		query(".chapter").append(new_section)
 	},
-	cmd_create_chapter(chapter_title, section_id, section_title, paragraph_id, sentence_id, ipt) {
-		const new_chapter = create.chapter(chapter_title)
-		const new_section = create.section(section_id, section_title)
-		const new_paragraph = create.paragraph(paragraph_id)
-		const new_sentence = create.sentence(sentence_id)
-		move.sentence.current(new_sentence, "", ipt)
-		new_paragraph.lastChild.append(new_sentence)
-		new_section.lastChild.append(new_paragraph)
-		new_chapter.at(-1).append(new_section)
-		query("article").replaceChildren(...new_chapter)
-	},
-	cmd_create_draft(data, ipt) {
-		this.cmd_create_chapter(data.chapter.title, data.section.id, data.section.title, data.paragraph.id, data.sentence.id, ipt)
-	},
-	cmd_create_work(data, ipt) {
-		name.work(data.work.title)
-		this.cmd_create_draft(data, ipt)
+	create: {
+		chapter(chapter_title, section_id, section_title, paragraph_id, sentence_id, ipt) {
+			const new_chapter = create.chapter(chapter_title)
+			const new_section = create.section(section_id, section_title)
+			const new_paragraph = create.paragraph(paragraph_id)
+			const new_sentence = create.sentence(sentence_id)
+			move.sentence.current(new_sentence, "", ipt)
+			new_paragraph.lastChild.append(new_sentence)
+			new_section.lastChild.append(new_paragraph)
+			new_chapter.at(-1).append(new_section)
+			query("article").replaceChildren(...new_chapter)
+		},
+		draft(data, ipt) {
+			this.chapter(data.chapter.title, data.section.id, data.section.title, data.paragraph.id, data.sentence.id, ipt)
+		},
+		work(data, ipt) {
+			name.work(data.work.title)
+			this.draft(data, ipt)
+		}
 	}
 }

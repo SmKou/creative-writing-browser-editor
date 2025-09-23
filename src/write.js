@@ -19,8 +19,12 @@ const end_mark_enter = (txt, ipt) => {
 // command: create section
 const enter = (user_input) => {
 	const { id: section_id, title: section_title } = store.create.section(user_input)
+	const is_not_empty = store.move.paragraph.in()
+	if (!is_not_empty) {
+		// move current sentence, not paragraph
+	}
 	store.move.paragraph.ipt()
-	dom.enter(section_id, section_title)
+	dom.enter(section_id, section_title, !is_not_empty)
 }
 
 // command: "##"
@@ -30,25 +34,26 @@ const create_chapter = (ipt, title) => {
 	const { title: chapter_title } = data.chapter
 	const { id: section_id, title: section_title } = data.section
 	const { id: paragraph_id } = data.paragraph
-	dom.cmd_create_chapter(chapter_title, section_id, section_title, paragraph_id, ipt)
+	dom.create.chapter(chapter_title, section_id, section_title, paragraph_id, ipt)
 }
 
+// command: create draft
 const create_draft = (ipt) => {
 	const data = store.create.cascade("draft")
-	dom.cmd_create_draft(data, ipt)
+	dom.create.draft(data, ipt)
 }
 
 // command: "#"
 // command: create work
 const create_work = (ipt, title) => {
 	const data = store.create.cascade("work", title)
-	dom.cmd_create_work(data, ipt)
+	dom.create.work(data, ipt)
 }
 
 const init = (ipt) => {
 	store.test()
 	const data = store.load.last_session()
-	dom.load(data, ipt)
+	dom.load.last_session(data, ipt)
 }
 
 export default {
