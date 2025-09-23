@@ -121,6 +121,8 @@ const current = {
 		}
 	}
 }
+// note: consider: use of order from chapter, section, and paragraph
+// note: consider: providing chapter id
 
 const selected = {}
 
