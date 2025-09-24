@@ -6,6 +6,89 @@ Locations
 - <loc>: individual segment
 - alternative <loc:loc>: range of segments
 
+```js
+const set_title = (level, title) => {
+	if (title)
+		return title
+	const n = untitled[level]
+	untitled[level]++
+	return "Untitled-" + n
+}
+```
+
+action keys
+- last_key
+- end_quote: flag for potential ending mark
+- end_marks: a key, or character, signifying the end of a sentence
+- end_triggers: a trigger key for determining if a sentence has ended
+- shifted: flag for clearing input after entry
+
+	Note:
+	Quotations are considered single sentences, even if containing multiple.
+	Avoid confusion when compiling for loading
+
+```js
+const last_key = ""
+const end_quote = false
+const end_marks = [".", "?", "!"]
+const end_triggers = [" ", "\""]
+const shifted = false
+```
+
+### Interface Controls
+`d-c-n-p-s`: location of segment (must be in order but not whole)
+- d: draft
+- c: chapter
+- n: section
+- p: paragraph
+- s: sentence
+
+- end_marks: end_quote = true
+- end_triggers
+	- if last_key is end_mark: new sentence
+	- else: end_quote = false
+- ENTER:
+	- if no user_input: new section
+	- else: new paragraph
+- <cmd>
+	- #: new work
+	- ##: new chapter
+	- ###: new section
+	- create
+	- add
+	- ins
+	- mv
+	- rw
+	- rm
+	- nt
+
+**Parsing**
+```js
+const tokens = user_input.split(" ")
+const cmd = tokens[0]
+const flags = editor[cmd].flags
+
+const flag_idx = [0]
+tokens.forEach((token, idx) => {
+	if (flags.includes(token))
+		flag_idx.push(idx)
+})
+const data = []
+for (let i = 0; i < flag_idx.length: ++i) {
+	const datum = [tokens[flag_idx[i]]]
+	const end = flag_idx[i + 1]
+	if (!end)
+		datum.push(tokens.slice(flag_idx[i] + 1))
+	else
+		datum.push(tokens.slice(flag_idx[i] + 1, flag_idx[i + 1]))
+	data.push(datum)
+}
+```
+
+Command: **Create**
+create: setup new segment
+* -f <feature>: denotes adding entry in feature connected to new segment
+
 ## Case: End trigger
 Description: User writes sentence, press end trigger ("| ) after end mark (.|?|!)
 
@@ -65,6 +148,8 @@ Process:
 2. Identify command
 3. Execute command
 
+### Case: create <level> <title>
+
 ### Case: nm <level> <title>
 Action: Rename segment at level with title
 
@@ -116,8 +201,7 @@ Notes
 - cannot be used to connect or join content in features
 - can be used in place of add and ins commands
 
-Flags
-- -a: after location
+	-a: after location
 
 Defaults
 - -i <loc2>: before location
@@ -126,10 +210,11 @@ Defaults
 ### Case: rm <loc>
 Action: Delete, or remove, location from draft
 
-Flags
-- -f <feature> <feature-keyword>: connect to feature by feature keyword
-- -d: permanent delete
-- -a: apply to all
+	-f <feature> <feature-keyword>: connect to feature by feature keyword
+	-t <title>: adds title to connection
+	-n <description|note>: adds description to connection
+	-d: permanent delete
+	-a: apply to all
 
 Defaults
 - does not remove from draft segments, only orders
@@ -140,10 +225,9 @@ Action: Record location => add note or comment to location, or add location to f
 Notes
 - can be used to create a save point and produce a backup for downlaod
 
-Flags
-- -m <type>: denotes note is comment, todo|rmdr (appears in outline)
-- -f <feature> <feature-keyword>: connect to feature by feature keyword
-- -s <[dn]>: create save point (optional: title), dn=download
+	-m <type>: denotes note is comment, todo|rmdr (appears in outline)
+	-f <feature> <feature-keyword>: connect to feature by feature keyword
+	-s <[dn]>: create save point (optional: title), dn=download
 
 Defaults
 - add note to location

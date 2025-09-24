@@ -82,6 +82,37 @@ All writing requires editing to improve. The second most important point of this
 
 **What if there are no sections?**: At the beginning of a chapter, paragraphs are added to the current chapter, but if a section is encountered later on, either by ENTER, `create section`, or `###`, then the paragraphs prior are removed from the chapter, added to a section, and that section is added to the chapter before adding a new section.
 
+**Focus view**: writing feature
+- write and edit draft
+- view in aside: range(loc:loc), draft, outline, notes
+
+**Side-by-side view**: world-building feature
+- write to, edit, and navigate feature
+-
+
+### Modules
+- editor.js: controller for UI and features
+- features
+
+	- write.js: active draft
+	- draft.js: drafts, including removed and marked segments
+	- outline.js: draft structure and story notes
+	- profile.js: characters, people, and places
+	- timeline.js: events, encounters, and their intersections
+	- language.js
+
+		- dictionary
+		- glossary
+		- grammar
+
+	- journal.js: notes, reflections, and free write entries
+	- world.js: notes, rules, and magic system
+	- map(s): layout of locations, including image imports and distance calculations
+
+- dashboard.js: cursory view of a work and its features
+
+**Reminder**: refactor css for light-dark, focus view, quarter-wide aside, half-wide aside
+- ipt placement
 ## How to Use
 
 NOT LIVE YET @ [CWBe](https://github.com/SmKou/creative-writing-browser-editor)

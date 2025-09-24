@@ -93,8 +93,6 @@ main {
 		&:focus { outline: none }
 	}
 
-
-
 	aside { display: none }
 
 	&.side-by-side {

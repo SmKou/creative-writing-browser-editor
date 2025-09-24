@@ -63,69 +63,6 @@ const format = {
 // to { final or destination of change }
 // res: { new object or state }
 
-const current = {
-	work: localStorage.getItem("active-work") || "",
-	draft: localStorage.getItem("active-draft") || "",
-	chapter: localStorage.getItem("active-chapter") || "",
-	section: localStorage.getItem("active-section") || "",
-	paragraph: localStorage.getItem("active-paragraph") || "",
-	sentence: localStorage.getItem("active-sentence") || "",
-	get(level, req_is_empty) {
-		switch (level) {
-			case "work":
-				return {
-					id: this.work,
-					title: db.works.get(this.work).title
-				}
-			case "draft":
-				return {
-					id: this.draft
-				}
-		}
-		const draft = db.drafts.get(this.draft)
-		switch (level) {
-			case "chapter":
-				const chapter = draft.chapters.get(this.chapter)
-				return req_is_empty
-					? chapter.order.length
-					: {
-						id: this.chapter,
-						title: chapter.title,
-						order: chapter.order
-					}
-			case "section":
-				const section = draft.sections.get(this.section)
-				return req_is_empty
-					? section.order.length
-					: {
-						id: this.section,
-						title: section.title,
-						order: section.order
-					}
-			case "paragraph":
-				const paragraph = draft.paragraphs.get(this.paragraph)
-				return req_is_empty
-					? paragraph.length
-					: {
-						id: this.paragraph,
-						order: paragraph
-					}
-			case "sentence":
-				const sentence = draft.sentences.get(this.sentence)
-				return req_is_empty
-					? sentence.length
-					: {
-						id: this.sentence,
-						txt: sentence
-					}
-		}
-	}
-}
-// note: consider: use of order from chapter, section, and paragraph
-// note: consider: providing chapter id
-
-const selected = {}
-
 const local = {
 	untitled: {
 		work() {
@@ -179,145 +116,7 @@ const set_title = (level, title) => {
 	}
 }
 
-const create = {
-	work(work_title) {
-		const id = index()
-		const title = set_title("work", work_title)
-		db.works.set(id, format.work(title))
-		current.work = id
-		return { id, title }
-	},
-	draft() {
-		const id = index()
-		db.drafts.set(id, format.draft())
-		db.works.get(current.work).drafts.push(id)
-		current.draft = id
-		return { id }
-	},
-	chapter(chapter_title) {
-		const id = index()
-		const title = set_title("chapter", chapter_title)
-		const draft = db.drafts.get(current.draft)
-		draft.chapters.set(id, format.chapter(title))
-		draft.order.push(id)
-		current.chapter = id
-		return { id, title }
-	},
-	section(section_title) {
-		const id = index()
-		const title = set_title("section", section_title)
-		const draft = db.drafts.get(current.draft)
-		draft.sections.set(id, format.section(title))
-		draft.chapters.get(current.chapter).order.push(id)
-		const last = current.section || ""
-		current.section = id
-		return { id, title, last }
-	},
-	paragraph() {
-		const id = index()
-		const draft = db.drafts.get(current.draft)
-		draft.paragraphs.set(id, format.paragraph())
-		draft.sections.get(current.section).order.push(id)
-		const last = current.paragraph || ""
-		current.paragraph = id
-		return { id, last }
-	},
-	sentence() {
-		const id = index()
-		const draft = db.drafts.get(current.draft)
-		draft.sentences.set(id, format.sentence())
-		draft.paragraphs.get(current.paragraph).push(id)
-		const last = current.sentence || ""
-		current.sentence = id
-		return { id, last }
-	},
-	cascade(level, segment_title) {
-		const data = {}
-		let title_used = false
-		switch (level) {
-			case "work":
-				const work = this.work(segment_title)
-				data.work = work
-				title_used = true
-			case "draft":
-				const draft = this.draft()
-				data.draft = draft
-			case "chapter":
-				const chapter = this.chapter(title_used ? "" : segment_title)
-				data.chapter = chapter
-				title_used = true
-			case "section":
-				const section = this.section(title_used ? "" : segment_title)
-				data.section = section
-			case "paragraph":
-				const paragraph = this.paragraph()
-				data.paragraph = paragraph
-			case "sentence":
-				const sentence = this.sentence()
-				data.sentence = sentence
-		}
-		return data
-	}
-}
 
-const move = {
-	section: {},
-	paragraph: {
-		in: () => db.drafts.get(current.draft).paragraphs.get(current.paragraph).length - 1 > 0,
-		ipt: () => {
-			const draft = db.drafts.get(current.draft)
-			const pre_section_id = draft.chapters.get(current.chapter).order.at(-2)
-			const paragraph_id = draft.sections.get(pre_section_id).order.pop()
-			console.log(current.paragraph, paragraph_id)
-			draft.sections.get(current.section).order.push(paragraph_id)
-		}
-	},
-	sentence: {}
-}
-
-const load = {
-	last_session() {
-		const levels = Object.keys(current).slice(0, -1)
-		const data = {}
-		for (const level of levels) {
-			if (!current[level])
-				return {...data, ...create.cascade(level, "")}
-			data[level] = current.get(level)
-		}
-		const draft = db.drafts.get(current.draft)
-		const chapter = draft.chapters.get(current.chapter)
-		const { toc, ctt } = ((level, ord = [...chapter.order], toc = {}, ctt = []) => {
-			switch (level) {
-				case "section":
-					data.ns = {}
-					ord.forEach(n_id => {
-						const section = draft.sections.get(n_id)
-						data.ns[n_id] = section.title
-						const sub_level = comp("paragraph", [...section.order])
-						toc[n_id] = sub_level.toc
-						ctt.push(sub_level.ctt)
-					})
-					return { toc, ctt }
-				case "paragraph":
-					ord.forEach(p_id => {
-						const paragraph = draft.paragraphs.get(p_id)
-						const sub_level = comp("sentence", [...paragraph])
-						toc[p_id] = sub_level.toc
-						ctt.push(sub_level.ctt)
-					})
-					return { toc, ctt }
-				case "sentence":
-					return {
-						toc: ord,
-						ctt: ord.map(s_id => draft.sentences.get(s_id))
-					}
-			}
-		})("section")
-		data.toc = toc
-		data.ctt = ctt
-		return data
-	}
-}
 
 const save = {
 	sentence(txt) {
@@ -325,15 +124,14 @@ const save = {
 	}
 }
 
-const test_init_wipe = () => {
-	localStorage.setItem("untitled-work", 1)
-	localStorage.setItem("unassigned-untitled", "")
+const test = {
+	wipe() {
+		localStorage.setItem("untitled-work", 1)
+		localStorage.setItem("unassigned-untitled", "")
+	}
 }
 
 export default {
-	create,
-	move,
-	load,
 	save,
-	test: test_init_wipe
+	test
 }
