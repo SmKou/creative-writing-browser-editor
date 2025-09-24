@@ -31,6 +31,18 @@ All writing requires editing to improve. The second most important point of this
 - Speech interface
 - Color coding and highlighting
 
+- slt <n-p-s>:<n-p-s>: select
+- fnd <keywords>: find (all)
+- cp: copy
+- rp: replace
+- set <setting> <[next]|setting-name>
+
+	settings
+	mode: wmod | pmod
+	theme: dark | light
+	write: pgh | lst
+	accent: (generic color)
+
 **Recommendations**: There are many options for writing software and web apps, such as Scrivener which mimics a folder-binder and index card management system. Scrivener requires a monthly subscription however. Some outline-oriented editors include Manuskript, bibisco, Quoll Writer, and Trelby. Note that none of these have been tried or used, but of those mentioned, Quoll Writer seems to have the most similar setup and design philosophy. There are other tools intended for world-building as welll, such as Anvil and Campfire.
 
 ### User Interface
@@ -54,20 +66,6 @@ All writing requires editing to improve. The second most important point of this
 				</ol>
 			</li>
 		</ol>
-		<!-- alternative format-->
-		<h3 id="section-id">Section title</h3>
-		<section id="section-id">
-			<div class="n-p-addr"></div>
-			<p id="paragraph-id">
-				<span id="sentence-id" class="current">
-					<span><textarea id="ipt" autofocus></textarea></span>
-					<span class="sentence-end">
-						<span class="sentence-n"></span>
-						<span class="end-mark">.|?|!</span>
-					</span>
-				</span>
-			</p>
-		</section>
 	</article>
 </main>
 ```
@@ -88,7 +86,7 @@ All writing requires editing to improve. The second most important point of this
 
 NOT LIVE YET @ [CWBe](https://github.com/SmKou/creative-writing-browser-editor)
 
-## Setup
+## Complete Setup
 
 ## License
 
