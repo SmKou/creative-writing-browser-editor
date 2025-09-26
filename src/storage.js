@@ -1,137 +1,63 @@
-import {v4 as index } from 'uuid'
+import DataFormat from './lib/DataFormat'
+import LocalAccess from './lib/LocalAccess'
+// import {v4 as index } from 'uuid'
 
-const db = {
-	works: new Map(),
-	drafts: new Map(),
-	histories: new Map()
-}
+const storage = { db: "" }
 
-// Used for matching by title
-const normalize_title = (title) => title.toLowerCase().split(/[ ]+/).join("-")
+class DatabaseAccess {
+	constructor(db) {
+		this.db = db,
+		this.res = []
+	}
 
-const format = {
-	work: (title) => ({
-		title,
-		normalized: normalize_title(title),
-		drafts: []
-		// drafts_histories: new Map()
-	}),
-	draft: () => ({
-		untitled: 1,				// used for untitled chapters
-		order: [],					// used for chapters
-		chapters: new Map(),
-		sections: new Map(),
-		paragraphs: new Map(),
-		sentences: new Map(),
-		outline: []
-	}),
-	chapter: (title) => ({
-		title,
-		normalized: normalize_title(title),
-		untitled: 1,				// used for untitled sections
-		order: [],					// used for paragraphs (or sections)
-		type: ""					// used to designate special chapters
-	}),
-	section: (title) => ({
-		title,
-		normalized: normalize_title(title),
-		order: []					// used for paragraphs
-	}),
-	paragraph: () => [],			// used for sentences
-	sentence: () => "",
-	history: () => ({
-		current: 0,					// required for backtracking (or undo) changes
-		timeline: [],				// linear: stores change ids
-		changes: new Map()			// change objects
-	}),
-	change: () => ({
-		action: "",
-		cond: {},
-		src: "",
-		req: {},
-		from: {},
-		to: {},
-		res: {}
-	})
-}
-// Change formats vary by action
-// action
-// cond { args and implicit_data }
-// src { change_id },
-// req { user permissiona and confirmations }
-// from { initial or source of change }
-// to { final or destination of change }
-// res: { new object or state }
+	add_item(type, data, store_name) {
+		const txn = this.db.transaction(store_name, "readwrite")
+		const store = txn.objectStore(store_name)
+		const obj = DataFormat[type](data)
+		store.add(obj)
+		txn.oncomplete = () => this.res.push({
+			action: "add",
+			status: true,
+			res: obj
+		})
+	}
 
-const local = {
-	untitled: {
-		work() {
-			const unassigned = localStorage.getItem("unassigned-untitled")
-			if (unassigned) {
-				const arr = unassigned.split(",")
-				const n = arr.shift()
-				localStorage.setItem("unassigned-untitled", arr.length ? arr : "")
-				return n
-			}
-			const work = localStorage.getItem("untitled-work") || 1
-			localStorage.setItem("untitled-work", +work + 1)
-			return work
-		},
-		chapter(draft_id) {
-			const draft = db.drafts.get(draft_id || current.draft.id)
-			const n = draft.untitled
-			draft.untitled++
-			return n
-		},
-		section(draft_id, chapter_id) {
-			const draft = db.drafts.get(draft_id || current.draft.id)
-			const chapter = draft.chapters.get(chapter_id || current.chapter.id)
-			const n = chapter.untitled
-			chapter.untitled++
-			return n
-		}
-	},
-	remove: {
-		work(title) {
-			if (!title.toLowerCase().includes("untitled"))
-				return;
-			const unassigned = localStorage.getItem("unassigned-untitled")
-			const arr = unassigned?.split(",") || []
-			arr.push(title.split("-").at(-1))
-			localStorage.setItem("unassigned-untitled", arr)
-		}
+	// add_items: used for loaded creations, ie. create work
+
+	get_item(store_name, id) {
+		const txn = this.db.transaction(store_name, "readonly")
+		const store = txn.objectStore(store_name)
+		const res = store.get(id)
+		res.onsuccess = () => this.res.push({
+			action: "retrieve",
+			status: true,
+			res: res.result
+		})
+	}
+
+	clear() {
+		console.log("deleted", JSON.stringify(this.res))
+		this.res = []
 	}
 }
 
-const set_title = (level, title) => {
-	if (title)
-		return title
-	switch (level) {
-		case "work":
-			return "Untitled-" + local.untitled.work()
-		case "chapter":
-			return "Untitled-" + local.untitled.chapter(current.draft)
-		case "section":
-			return "Untitled-" + local.untitled.section(current.draft, current.chapter)
-	}
+const req = indexedDB.open("CWBe", 1)
+req.onupgradeneeded = evt => {
+	const db = evt.target.result
+	if (!db.objectStoreNames.contains("works"))
+		db.createObjectStore("works", { keyPath: "id" })
+	if (!db.objectStoreNames.contains("drafts"))
+		db.createObjectStore("drafts", { keyPath: "id" })
 }
-
-
-
-const save = {
-	sentence(txt) {
-		db.drafts.get(current.draft).sentences.set(current.sentence, txt)
-	}
-}
-
-const test = {
-	wipe() {
-		localStorage.setItem("untitled-work", 1)
-		localStorage.setItem("unassigned-untitled", "")
-	}
+req.onsuccess = evt => {
+	storage.db = evt.target.result
 }
 
 export default {
-	save,
-	test
+	untitled_work: {
+		create: () => LocalAccess.create_untitled_work(),
+		delete: (title) => LocalAccess.remove_untitled_work(title)
+	},
+	db: () => new DatabaseAccess(storage.db)
 }
+// consider: database access by object store (What about cross-transactions?)
