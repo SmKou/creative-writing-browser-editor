@@ -1,13 +1,17 @@
-import controller from './write'
+import controller from './feature//write'
 import 'animate.css'
 import './style.css'
+
+console.log(controller.create.work(""))
 
 const state = {
 	last_key: "",
 	end_quote: false,
 	end_marks: [".", "?", "!"],
 	end_trigger: [" ", "\""],
-	shifted: false
+	shifted: false,
+	left: "",
+	right: ""
 }
 const action_keys = [...state.end_marks, ...state.end_trigger, "Enter"]
 const end_action = (ipt) => {

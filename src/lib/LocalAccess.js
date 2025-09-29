@@ -1,5 +1,5 @@
-class LocalAccess {
-	static create_untitled_work() {
+const LocalAccess = {
+	create_untitled_work() {
 		const unassigned = localStorage.getItem("unassigned-untitled")
 		if (unassigned) {
 			const arr = unassigned.split(",")
@@ -10,10 +10,9 @@ class LocalAccess {
 		}
 		const work_n = localStorage.getItem("untitled-work") || 1
 		localStorage.setItem("untitled-work", +work_n + 1)
-		return work_n
-	}
-
-	static remove_untitled_work(title) {
+		return "Untitled-" + work_n
+	},
+	remove_untitled_work(title) {
 		if (!title.toLowerCase().includes("untitled-"))
 			return;
 		const unassigned = localStorage.getItem("unassigned-untitled")
