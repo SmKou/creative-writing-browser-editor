@@ -1,4 +1,3 @@
-import Dexie from "dexie";
 
 let selected = {}
 const data = {
@@ -8,61 +7,54 @@ const data = {
 	"a11": { title: "", drafts: [], current: "", history: "1234-y4" }
 }
 const ipt = document.querySelector("input")
+const database = new Worker("data.js")
+database.postMessage({ action: "open" })
 
-const db = new Dexie("test-CWBe")
-db.version(1).stores({
-	works: "id,title,history"
-})
-
-const add = async function(key, val) {
-	if (key) {
-		selected[key] = val
-		return;
-	}
-
-	const id = [
-		String.fromCharCode(Math.floor(Math.random() * 26) + 97),
-		String.fromCharCode(Math.floor(Math.random() * 26) + 97),
-		String.fromCharCode(Math.floor(Math.random() * 26) + 97),
-	].join("")
-	data[id] = {...selected}
-	await db.works.add({ id, ...selected })
-	selected = {}
-	return id
-}
-
-const get = async function(id) {
-	const work = await db.works.get(id)
-	// console.log(work)
-	if (!work)
-		console.error("DNE?")
-	return work
-}
-
-const getAll = function() {
-	const ids = Object.keys(data)
-	const works = []
-	ids.forEach((id) => {
-		const work = get(id)
-		works.push(work)
-	})
-	return works
-}
-
-ipt.addEventListener("change", async evt => {
+ipt.addEventListener("change", evt => {
 	const input = evt.target.value
 	const [cmd, ...args] = input.split(" ")
 	switch (cmd) {
 		case "all":
-			console.log(getAll().map(async itm => await itm))
+			database.postMessage({
+				action: "get-all",
+				store: "works",
+				only: ["id", "title"]
+			})
+			console.log("main sent")
 			break;
 		case "get":
-			console.log(await get(args))
+			database.postMessage({
+				action: "get",
+				store: "works",
+				type: "id",
+				id: args
+			})
 			break;
 		case "add":
-			const res = add(...args)
-			if (res)
-				console.log(get(res))
+			if (args) {
+				database.postMessage({ action: "add", store: "works", data: args })
+				return;
+			}
+			const ids = Object.keys(data)
+			const id = ids[Math.floor(Math.random() * ids.length)]
+			const item = data[id]
+			database.postMessage({
+				action: "add",
+				store: "works",
+				data: { id, ...item }
+			})
 			break;
 	}
 })
+
+database.onmessage = function DatasbaseResponse(e) {
+	console.log("main received", e.data)
+	if (e.data.success) {
+		console.log(e.data.success)
+		console.log("data", e.data.data || "")
+		console.log("res", e.data.res || "")
+	}
+	else if (e.data.error) {
+		console.error(e.data.error)
+	}
+}
