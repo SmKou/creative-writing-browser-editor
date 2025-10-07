@@ -695,6 +695,7 @@ Looking at me. “You said the prayer was answered, you remember? Then. You have
 Father eased mother back. She released him and looked at him, tired. He scooped her up as she reached out her arms, muttering “Be careful of your back,” and rested against him, “Old boy.”
 
 He chuckled, carrying her away. “I’m not old enough yet,” he said contentedly, “My beloved mare still needs to…” She smacked him. His laugh lingered in his wake.`
+// 15,525 words
 
 const KEY_SIZE = 24
 const v4 = () => {
@@ -712,6 +713,7 @@ const v4 = () => {
 }
 
 const segments = sample.split(/\n+/)
+const chapter = []
 const paragraphs = new Map()
 const sentences = new Map()
 
@@ -731,9 +733,13 @@ segments
 	})
 	const paragraph_id = v4()
 	paragraphs.set(paragraph_id, { id: paragraph_id, order: paragraph_order })
+	chapter.push(paragraph_id)
 })
+
+const c_store = "chapters"
 const p_store = "paragraphs"
 const s_store = "sentences"
+const CHAPTER_ID = v4()
 
 let db
 self.onmessage = function access_database(evt) {
@@ -742,24 +748,26 @@ self.onmessage = function access_database(evt) {
 		case "open":
 			open_database()
 			break;
-		case "count":
-			check_initial()
-			break;
 		case "initial":
-			initialize(evt.data.data)
+			initialize()
 			break;
 		case "load":
-			load_page()
+			load()
 			break;
 	}
 }
 
 function open_database() {
-	const req = indexedDB.open("test-cwbe-storage-load", 1)
+	const req = indexedDB.open("test-cwbe-storage-load", 2)
 	req.onupgradeneeded = evt => {
-		db = evt.target.result
-		db.createObjectStore(s_store, { keyPath: "id" })
-		db.createObjectStore(p_store, { keyPath: "id" })
+		const db = evt.target.result
+		const names = db.objectStoreNames
+		if (!names.contains(c_store))
+			db.createObjectStore(c_store, { keyPath: "id" })
+		if (!names.contains(p_store))
+			db.createObjectStore(p_store, { keyPath: "id" })
+		if (!names.contains(s_store))
+			db.createObjectStore(s_store, { keyPath: "id" })
 		self.postMessage({ success: "upgrade" })
 	}
 	req.onsuccess = evt => {
@@ -771,73 +779,73 @@ function open_database() {
 	})
 }
 
-function check_initial() {
-	const joint_trx = db.transaction([p_store, s_store], "readonly")
-	const store_p = joint_trx.objectStore(p_store)
-	const count_p = store_p.count()
-	count_p.oncomplete = p_ct_evt => {
-		const count_s = joint_trx.objectStore(s_store).count()
-		count_s.oncomplete = s_ct_evt => {
-			self.postMessage({
-				success: "count",
-				data: {
-					[p_store]: p_ct_evt,
-					[s_store]: s_ct_evt
-				}
-			})
-		}
-		count_s.onerror = evt => self.postMessage({
-			error: `Count ${s_store}: ${evt.target.errorCode}`
+function initialize() {
+	console.log("in initialize")
+	const joint_trx = db.transaction([c_store, p_store, s_store], "readwrite")
+	joint_trx.oncomplete = evt = self.postMessage({
+		success: "initial"
+	})
+	joint_trx.onerror = evt => self.postMessage({
+		error: `Initialize: ${evt.target.errorCode}`
+	})
+	const ctrx_store = joint_trx.objectStore(c_store)
+	const ctrx = ctrx_store.clear()
+	ctrx.onsuccess = () => {
+		ctrx_store.add({
+			id: CHAPTER_ID,
+			order: chapter
 		})
 	}
-	count_p.onerror = evt => self.postMessage({
-		error: `Count ${p_store}: ${evt.target.errorCode}`
+	ctrx.onerror = evt => self.postMessage({
+		error: `Initialize ${c_store}: ${evt.target.errorCode}`
 	})
-}
-
-function initialize(init) {
-	const data = init.map(name => name == "paragraphs" ? paragraphs : sentences)
-	const joint_trx = db.transaction([init], "readwrite")
-	const first_store = joint_trx.objectStore(init[0])
-	data[0].forEach(segment => first_store.add(segment))
-	first_store.oncomplete = () => {
-		if (!init[1])
-			self.postMessage({
-				success: "initialize",
-				store: init[0]
-			})
-		else {
-			const second_store = joint_trx.objectStore(init[1])
-			data[1].forEach(segment => second_store.add(segment))
-			second_store.oncomplete = () => self.postMessage({
-				success: "initialize",
-				store: init
-			})
-			second_store.onerror = evt => self.postMessage({
-				error: `Initialize ${init[1]}: ${evt.target.errorCode} - sample: ${data[1]}`
-			})
-		}
+	const ptrx_store = joint_trx.objectStore(p_store)
+	const ptrx = ptrx_store.clear()
+	ptrx.onsuccess = () => {
+		paragraphs.forEach(paragraph => ptrx_store.add(paragraph))
 	}
-	first_store.onerror = evt => self.postMessage({
-		error: `Initialize ${init[0]}: ${evt.target.errorCode} - sample: ${data[0]}`
+	ptrx.onerror = evt => self.postMessage({
+		error: `Initialize ${p_store}: ${evt.target.errorCode}`
+	})
+	const strx_store = joint_trx.objectStore(s_store)
+	const strx = strx_store.clear()
+	strx.onsuccess = () => {
+		sentences.forEach(sentence => strx_store.add(sentence))
+	}
+	strx.onerror = evt => self.postMessage({
+		error: `Initialize ${s_store}: ${evt.target.errorCode}`
 	})
 }
 
 // lookup
-function load_page() {
-	const trx = db.transaction(["paragraphs", "sentences"], "readonly")
-	const p_store = trx.objectStore("paragraphs")
-	p_store.openCursor().onsuccess = p_evt => {
-		const s_store = trx.objectStore("sentences")
-		s_store.openCursor().onsuccess = s_evt => {
-			self.postMessage({
+function load() {
+	console.log("in load")
+	const trx = db.transaction([c_store, p_store, s_store], "readonly")
+	const ctrx_store = trx.objectStore(c_store)
+	const ctrx = ctrx_store.getAll()
+	ctrx.onsuccess = c_evt => {
+		const ptrx_store = trx.objectStore(p_store)
+		const ptrx = ptrx_store.getAll()
+		ptrx.onsuccess = p_evt => {
+			const strx_store = trx.objectStore(s_store)
+			const strx = strx_store.getAll()
+			strx.onsuccess = s_evt => self.postMessage({
 				success: "load",
-				paragraphs: p_evt.target.result,
-				sentences: s_evt.target.result
+				data: {
+					cs: c_evt.target.result,
+					ps: p_evt.target.result,
+					ss: s_evt.target.result
+				}
+			})
+			strx.onerror = s_evt => self.postMessage({
+				error: `Load ${s_store}: ${s_evt.target.errorCode}`
 			})
 		}
+		ptrx.onerror = p_evt => self.postMessage({
+			error: `Load ${p_store}: ${p_evt.target.errorCode}`
+		})
 	}
-	trx.onerror = evt => self.postMessage({
-		error: `Load: ${evt.target.errorCode}`
+	ctrx.onerror = c_evt => self.postMessage({
+		error: `Load ${c_store}: ${c_evt.target.errorCode}: `
 	})
 }
