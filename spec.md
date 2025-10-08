@@ -1,0 +1,48 @@
+# Specification: CWBe
+
+- editor.js: controller for UI and features
+- features
+
+	- write.js: active draft
+	- draft.js: drafts, including removed and marked segments
+	- outline.js: draft structure and story notes
+	- profile.js: characters, people, and places
+	- timeline.js: events, encounters, and their intersections
+	- language.js
+
+		- dictionary
+		- glossary
+		- grammar
+
+	- journal.js: notes, reflections, and free write entries
+	- world.js: notes, rules, and magic system
+	- map(s): layout of locations, including image imports and distance calculations
+
+- dashboard.js: cursory view of a work and its features
+
+## default
+- last session/work
+- if none: new work
+
+works
+drafts
+- chapters
+- sections
+- paragraphs
+- sentences
+
+## Write
+
+Enter
+- with text:				create paragraph
+- w/o text:					create section
+
+`# <title>`					create work
+`create work <title>`
+
+`## <title>`				create chapter
+`create chapter <title>`
+
+`### <title>`				create section
+`create section <title>`
+
