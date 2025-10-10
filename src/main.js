@@ -1,7 +1,39 @@
 import 'animate.css'
 import './style.css'
 
-console.log(controller.create.work(""))
+const ORIENTATIONS = (user_input) => {
+	const opts = [
+		"focusview",
+		"main-none",
+		"main-aside",
+		"splitscreen"
+	]
+	if (opts.includes(user_input))
+		return true
+	const opt = opts.filter(opt => opt.includes(user_input))
+	if (!opts.length || opts.length > 1)
+		return false
+	return opt[0]
+}
+const FEATURES = (user_input) => {
+	const opts = [
+		"dashboard",
+		"work",
+		"draft",
+		"outline",
+		"journal",
+		"history",
+		"timeline",
+		"profile-character-people-place",
+		"language-lexicon-glossary-grammar",
+		"environment-world-setting",
+		"map-geography"
+	]
+	const opt = opts.filter(opt => opt.includes(user_input))
+	if (!opts.length || opts.length > 1)
+		return false
+	return opt[0]
+}
 
 const state = {
 	last_key: "",
@@ -9,8 +41,10 @@ const state = {
 	end_marks: [".", "?", "!"],
 	end_trigger: [" ", "\""],
 	shifted: false,
+	// feature
 	left: "",
-	right: ""
+	right: "",
+	focus: true
 }
 const action_keys = [...state.end_marks, ...state.end_trigger, "Enter"]
 const end_action = (ipt) => {
@@ -27,41 +61,49 @@ ipt.addEventListener("keydown", evt => {
 		// Undo: use of backspace between sentences, paragraphs, and sections
 		evt.target.focus()
 	}
-	// if (!action_keys.includes(evt.key)) {
-	// 	state.last_key = evt.key
-	// 	return;
-	// }
-	// const user_input = evt.target.value.split("\n")[0]
-	// if (state.end_trigger.includes(evt.key)) {
-	// 	if (state.end_quote) {
-	// 		if (state.end_marks.includes(state.last_key)) {
-	// 			controller.end_trigger(user_input, evt.target)
-	// 			end_action(evt.target)
-	// 			return;
-	// 		}
-	// 		else
-	// 			state.end_quote = false
-	// 	}
-	// 	state.last_key = evt.key
-	// 	return;
-	// }
-	// if (state.end_marks.includes(evt.key)) {
-	// 	if (!state.end_quote)
-	// 		state.end_quote = true
-	// 	state.last_key = evt.key
-	// 	return;
-	// }
-	// if (evt.key == "Enter") {
-	// 	if (!user_input) {
-	// 		controller.enter()
-	// 	} // "Enter" with no txt: new section
-	// 	else {
-	// 		controller.end_mark_enter(user_input, evt.target)
-	// 	} // "Enter" with txt: new paragraph
-	// 	end_action(evt.target)
-	// 	return;
-	// }
-	// const [cmd, ...args] = user_input.split(" ")
+
+	if (!action_keys.includes(evt.key)) {
+		state.last_key = evt.key
+		return;
+	}
+
+	const user_input = evt.target.value.split("\n")[0]
+	if (state.end_trigger.includes(evt.key)) {
+		if (state.end_quote) {
+			if (state.end_marks.includes(state.last_key)) {
+				end_action(evt.target)
+				return;
+			}
+			else
+				state.end_quote = false
+		}
+		state.last_key = evt.key
+		return;
+	}
+	if (state.end_marks.includes(evt.key)) {
+		if (!state.end_quote)
+			state.end_quote = true
+		state.last_key = evt.key
+		return;
+	}
+	if (evt.key == "Enter") {
+		if (!user_input) {
+		} // "Enter" with no txt: new section
+		else {
+		} // "Enter" with txt: new paragraph
+		end_action(evt.target)
+		return;
+	}
+
+	const [cmd, ...args] = user_input.split(" ")
+	switch (cmd) {
+		case "left":
+		case "right":
+			state[cmd] = args
+		case "open":
+		case "close":
+		case ""
+	}
 	// switch (cmd) {
 	// 	case "#":
 	// 		controller.create(`work ${args.join(" ")}`, evt.target)
@@ -110,4 +152,4 @@ ipt.addEventListener("keyup", evt => {
 		evt.preventDefault()
 })
 document.addEventListener("click", () => ipt.focus())
-controller.init(ipt)
+document.querySelector("article").append(ipt)

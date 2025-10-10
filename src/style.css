@@ -1,4 +1,5 @@
 :root {
+	color-scheme: light dark;
 	--light: mistyrose;
 	--mid: hotpink;
 	--dark: deeppink;
@@ -38,39 +39,40 @@ header {
 }
 
 main {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 
-	&.dark {
-		color: white;
-		background: black;
-
-		textarea {
-			border-top-color: white;
-			color: white;
-			background: black;
-		}
-
+	&.focusview {
 		article {
-			border-left-color: var(--light);
-			border-right-color: var(--light);
+			width: 100%;
 		}
-
-		#ipt {
-			border-color: var(--light);
-		}
+		aside { display: none }
 	}
+
+	&.main-none {
+		article {
+			width: 75vw;
+			height: 100%;
+			max-width: 960px;
+			height: calc(100vh - 84px);
+		}
+		aside { display: none }
+	}
+
+	&.main-side {}
+
+	&.splitscreen {}
 
 	article {
 		position: relative;
-		width: 75vw;
-		height: 100%;
-		max-width: 960px;
-		height: calc(100vh - 84px);
 		padding: 8px;
 		overflow-y: scroll;
-		border-left: 1px solid var(--dark);
-		border-right: 1px solid var(--dark);
-		color: black;
-		background: snow;
+		border-left: 1px solid light-dark(var(--dark), var(--light));
+		border-right: 1px solid light-dark(var(--dark), var(--light));
+		color: light-dark(black, white);
+		background: light-dark(snow, black);
 
 		ol.paragraph {
 			margin-bottom: 24px;
@@ -82,31 +84,21 @@ main {
 		}
 	}
 
+	aside {
+		height: calc(100vh - 84px);
+	}
+
 	#ipt {
 		width: 100%;
 		min-height: 1lh;
 		max-height: 3.2lh;
-		border: 2px solid var(--dark);
+		border: 2px solid light-dark(var(--dark), var(--light));
+		color: light-dark(black, white);
+		background: light-dark(white, black);
 		field-sizing: content;
 		resize: none;
 
 		&:focus { outline: none }
-	}
-
-	aside { display: none }
-
-	&.side-by-side {
-		display: flex;
-		align-items: center;
-
-		aside { height: calc(100vh - 84px) }
-	}
-
-	&.side-by-side article,
-	&.side-by-side aside {
-		display: block;
-		width: 50vw;
-		display: inline-block;
 	}
 }
 

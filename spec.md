@@ -1,5 +1,34 @@
 # Specification: CWBe
 
+1.	views
+	a. focus			`class="focusview"`
+	b. main				`class="main-none"`
+	c. main-aside		`class="main-aside"`
+	d. split screen		`class="splitscreen"`
+2.	view commands
+	a. `open`
+	b. `switch <focus>`
+	c. `close`
+3.	formats
+	a. work-draft (write|read)
+	b. journal
+	c. outline
+	d. environment
+	e. timeline
+	f. profile
+	g. language
+	   - lexicon
+	   - grammar
+	   - glossary
+	10. map
+	11. history
+4.	Dashboard(s)
+5.	UI commands
+	a. `create`
+	b. `move`
+	c. `delete`
+
+
 - editor.js: controller for UI and features
 - features
 
