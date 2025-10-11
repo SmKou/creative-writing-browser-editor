@@ -2,6 +2,8 @@ import 'animate.css'
 import './style.css'
 
 const ORIENTATIONS = (user_input) => {
+	if (!user_input)
+		return false
 	const opts = [
 		"focusview",
 		"main-none",
@@ -16,6 +18,8 @@ const ORIENTATIONS = (user_input) => {
 	return opt[0]
 }
 const FEATURES = (user_input) => {
+	if (!user_input)
+		return false
 	const opts = [
 		"dashboard",
 		"work",
@@ -53,6 +57,7 @@ const end_action = (ipt) => {
 	ipt.focus()
 }
 
+const body = document.querySelector("body")
 const ipt = document.createElement("textarea")
 ipt.id = "ipt"
 ipt.addEventListener("keydown", evt => {
@@ -96,51 +101,32 @@ ipt.addEventListener("keydown", evt => {
 	}
 
 	const [cmd, ...args] = user_input.split(" ")
+	let orientation, feature;
 	switch (cmd) {
+		case "view":
+		case "vw":
+			orientation = ORIENTATIONS(args)
+			document.querySelector("main").setAttribute("class", orientation)
+			if (orientation == "focusview")
+				document.requestFullscreen()
+			break;
 		case "left":
+		case "lft":
+			feature = FEATURES(args)
+			break;
 		case "right":
-			state[cmd] = args
+		case "rgh":
+			feature = FEATURES(args)
+			break;
 		case "open":
+		case "opn":
+			feature = FEATURES(args)
+			break;
 		case "close":
-		case ""
+		case "cls":
+			feature = FEATURES(args)
+			break;
 	}
-	// switch (cmd) {
-	// 	case "#":
-	// 		controller.create(`work ${args.join(" ")}`, evt.target)
-	// 		break;
-	// 	case "##":
-	// 		controller.create(`chapter ${args.join(" ")}`, evt.target)
-	// 		break;
-	// 	case "###":
-	// 		controller.enter(args)
-	// 		break; // new section
-	// 	case "create":
-	// 		controller.create(args.join(" "), evt.target)
-	// 		break;
-	// 	/*
-	// 	case "add":
-	// 		break;
-	// 	case "insert":
-	// 	case "ins":
-	// 		break;
-	// 	case "name":
-	// 	case "rename":
-	// 	case "nm":
-	// 		break;
-	// 	case "move":
-	// 	case "mv":
-	// 		break;
-	// 	case "remove":
-	// 	case "rm":
-	// 		break;
-	// 	case "record":
-	// 	case "rcd":
-	// 		break;
-	// 	*/
-	// 	default:
-	// 		console.error("unspecified command entered")
-	// }
-	// end_action(evt.target)
 })
 ipt.addEventListener("keyup", evt => {
 	if (state.shifted) {

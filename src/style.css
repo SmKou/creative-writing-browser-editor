@@ -45,23 +45,29 @@ main {
 	align-items: center;
 
 	&.focusview {
-		article {
+		article.main {
 			width: 100%;
 		}
-		aside { display: none }
+		article.aside { display: none }
 	}
 
 	&.main-none {
-		article {
+		article.main {
 			width: 75vw;
 			height: 100%;
 			max-width: 960px;
 			height: calc(100vh - 84px);
 		}
-		aside { display: none }
+		article.aside { display: none }
 	}
 
-	&.main-side {}
+	&.main-side {
+		article.main {
+			width: 75vw;
+			height: 100%;
+			heigh
+		}
+	}
 
 	&.splitscreen {}
 
