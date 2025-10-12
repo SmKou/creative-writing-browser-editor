@@ -1,42 +1,43 @@
+// import editor from 'editor'
 import 'animate.css'
 import './style.css'
 
-const ORIENTATIONS = (user_input) => {
-	if (!user_input)
+const FEATURES = ([ft, subft]) => {
+	const cmd_lst = {
+		"DASHBOARD": ["dbd", "dash", "dashboard"],
+		"WORK": ["wk", "work", "prj", "project"],
+		"DRAFT": ["dft", "drft", "draft"],
+		"OUTLINE": ["otln", "outline"],
+		"JOURNAL": ["jrl", "jrnl", "journal"],
+		"HISTORY": ["hst", "hsty", "history"],
+		"TIMELINE": ["tmln", "timeline"],
+		"PROFILE": ["prf", "prfl", "profile", "char", "character", "ppl", "people", "plc", "place"],
+		// consider: person's language: slang | dialect
+		"LANGUAGE": ["lng", "lang", "language"],
+		"SETTING": ["env", "environment", "wrld", "world", "setting"],
+		"MAP": ["mp", "map", "geo", "geography"]
+	}
+	const cmd_fts = Object.keys(cmd_lst)
+	const feature = cmd_fts.filter(cmd_ft => cmd_lst[cmd_ft].includes(ft))
+	if (!feature.length)
 		return false
-	const opts = [
-		"focusview",
-		"main-none",
-		"main-aside",
-		"splitscreen"
-	]
-	if (opts.includes(user_input))
-		return true
-	const opt = opts.filter(opt => opt.includes(user_input))
-	if (!opts.length || opts.length > 1)
-		return false
-	return opt[0]
-}
-const FEATURES = (user_input) => {
-	if (!user_input)
-		return false
-	const opts = [
-		"dashboard",
-		"work",
-		"draft",
-		"outline",
-		"journal",
-		"history",
-		"timeline",
-		"profile-character-people-place",
-		"language-lexicon-glossary-grammar",
-		"environment-world-setting",
-		"map-geography"
-	]
-	const opt = opts.filter(opt => opt.includes(user_input))
-	if (!opts.length || opts.length > 1)
-		return false
-	return opt[0]
+	if (subft) {
+		if (feature == "MAP" && ["dst", "dist", "distance"].includes(subft)) 
+			return [feature, "DISTANCE"]
+		if (feature == "LANGUAGE") {
+			const lng_lst = {
+				"LEXICON": ["lxc", "lexi", "lexicon", "vcb", "vocab", "dct", "dict", "diction"],
+				"GLOSSARY": ["gls", "glos", "glossary", "idx", "index"],
+				"GRAMMAR": ["grm", "gram", "grammar", "stx", "sntx", "syntax"]
+			}
+			const lng_fts = Object.keys(lng_st)
+			const sub_feature = lng_fts.filter(lng_ft => lng_lst[lng_ft].includes(subft))
+			return [feature, sub_feature]
+		}
+		const sub_feature = cmd_fts.filter(cmd_ft => cmd_lst[cmd_ft].includes(subft))
+		return [feature, sub_feature]
+	}
+	return [feature]
 }
 
 const state = {
@@ -101,30 +102,18 @@ ipt.addEventListener("keydown", evt => {
 	}
 
 	const [cmd, ...args] = user_input.split(" ")
-	let orientation, feature;
 	switch (cmd) {
-		case "view":
-		case "vw":
-			orientation = ORIENTATIONS(args)
-			document.querySelector("main").setAttribute("class", orientation)
-			if (orientation == "focusview")
-				document.requestFullscreen()
-			break;
 		case "left":
 		case "lft":
-			feature = FEATURES(args)
 			break;
 		case "right":
 		case "rgh":
-			feature = FEATURES(args)
 			break;
 		case "open":
 		case "opn":
-			feature = FEATURES(args)
 			break;
 		case "close":
 		case "cls":
-			feature = FEATURES(args)
 			break;
 	}
 })
