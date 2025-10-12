@@ -103,6 +103,15 @@ ipt.addEventListener("keydown", evt => {
 
 	const [cmd, ...args] = user_input.split(" ")
 	switch (cmd) {
+		case "focus":
+		case "fcs":
+			break;
+		case "main":
+			break;
+		case "side":
+			break;
+		case "split":
+			break;
 		case "left":
 		case "lft":
 			break;
@@ -127,4 +136,4 @@ ipt.addEventListener("keyup", evt => {
 		evt.preventDefault()
 })
 document.addEventListener("click", () => ipt.focus())
-document.querySelector("article").append(ipt)
+document.querySelector("article.main").append(ipt)
