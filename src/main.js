@@ -1,44 +1,6 @@
-// import editor from 'editor'
+import editor from 'editor'
 import 'animate.css'
 import './style.css'
-
-const FEATURES = ([ft, subft]) => {
-	const cmd_lst = {
-		"DASHBOARD": ["dbd", "dash", "dashboard"],
-		"WORK": ["wk", "work", "prj", "project"],
-		"DRAFT": ["dft", "drft", "draft"],
-		"OUTLINE": ["otln", "outline"],
-		"JOURNAL": ["jrl", "jrnl", "journal"],
-		"HISTORY": ["hst", "hsty", "history"],
-		"TIMELINE": ["tmln", "timeline"],
-		"PROFILE": ["prf", "prfl", "profile", "char", "character", "ppl", "people", "plc", "place"],
-		// consider: person's language: slang | dialect
-		"LANGUAGE": ["lng", "lang", "language"],
-		"SETTING": ["env", "environment", "wrld", "world", "setting"],
-		"MAP": ["mp", "map", "geo", "geography"]
-	}
-	const cmd_fts = Object.keys(cmd_lst)
-	const feature = cmd_fts.filter(cmd_ft => cmd_lst[cmd_ft].includes(ft))
-	if (!feature.length)
-		return false
-	if (subft) {
-		if (feature == "MAP" && ["dst", "dist", "distance"].includes(subft)) 
-			return [feature, "DISTANCE"]
-		if (feature == "LANGUAGE") {
-			const lng_lst = {
-				"LEXICON": ["lxc", "lexi", "lexicon", "vcb", "vocab", "dct", "dict", "diction"],
-				"GLOSSARY": ["gls", "glos", "glossary", "idx", "index"],
-				"GRAMMAR": ["grm", "gram", "grammar", "stx", "sntx", "syntax"]
-			}
-			const lng_fts = Object.keys(lng_lst)
-			const sub_feature = lng_fts.filter(lng_ft => lng_lst[lng_ft].includes(subft))
-			return [feature, sub_feature]
-		}
-		const sub_feature = cmd_fts.filter(cmd_ft => cmd_lst[cmd_ft].includes(subft))
-		return [feature, sub_feature]
-	}
-	return [feature]
-}
 
 const state = {
 	last_key: "",
@@ -46,12 +8,12 @@ const state = {
 	end_marks: [".", "?", "!"],
 	end_trigger: [" ", "\""],
 	shifted: false,
-	// feature
+	stash: {},
+	// orientation and feature
 	left: "",
 	right: "",
 	main: "",
-	side: "",
-	focus: true
+	side: ""
 }
 const action_keys = [...state.end_marks, ...state.end_trigger, "Enter"]
 const end_action = (ipt) => {
@@ -60,7 +22,39 @@ const end_action = (ipt) => {
 	ipt.focus()
 }
 
-const body = document.querySelector("body")
+const ui = {
+	focus(feature, is_side = false) {
+		// default: main
+		// if feature:
+		// --> is_side: set side to feature
+		// --> else: set main to feature
+		if (feature) {
+			const view = is_side ? "side" : "main"
+			const side = state.left == state[view]
+				? "left"
+				: "right"
+			const elm = document.querySelector(`.${view}.${side}`)
+			elm.remove()
+			const last_feature = state[view] || state[side]
+			if (!state.stash[last_feature])
+				state.stash[last_feature] = []
+			state.stash[last_feature].push(elm)
+			state[view] = feature
+			state[side] = feature
+			// load feature
+		}
+		document.requestFullscreen()
+	},
+	main: {},
+	side: {},
+	split: {},
+	open: {},
+	close: {},
+	left: {},
+	right: {}
+}
+const cmds = Object.keys(ui)
+
 const ipt = document.createElement("textarea")
 ipt.id = "ipt"
 ipt.addEventListener("keydown", evt => {
@@ -69,16 +63,17 @@ ipt.addEventListener("keydown", evt => {
 		// Undo: use of backspace between sentences, paragraphs, and sections
 		evt.target.focus()
 	}
-
 	if (!action_keys.includes(evt.key)) {
 		state.last_key = evt.key
 		return;
 	}
 
 	const user_input = evt.target.value.split("\n")[0]
+	console.log(user_input)
 	if (state.end_trigger.includes(evt.key)) {
 		if (state.end_quote) {
 			if (state.end_marks.includes(state.last_key)) {
+				// create sentence
 				end_action(evt.target)
 				return;
 			}
@@ -98,36 +93,18 @@ ipt.addEventListener("keydown", evt => {
 		if (!user_input) {
 		} // "Enter" with no txt: new section
 		else {
+			const [cmd, ...args] = user_input.split(" ")
+			if (cmds.includes(cmd))
+				cmds[cmd](args)
+			else if (editor.cmds.includes(cmd))
+				editor[cmd](args)
+			else {
+				// commit sentence
+				// create paragraph
+			}
 		} // "Enter" with txt: new paragraph
 		end_action(evt.target)
 		return;
-	}
-
-	const [cmd, ...args] = user_input.split(" ")
-	switch (cmd) {
-		case "focus":
-		case "fcs":
-			const [feature, sub_feature] = FEATURES(args)
-			if (state.main != feature) {}
-			document.requestFullscreen()
-		case "main":
-			break;
-		case "side":
-			break;
-		case "split":
-			break;
-		case "left":
-		case "lft":
-			break;
-		case "right":
-		case "rgh":
-			break;
-		case "open":
-		case "opn":
-			break;
-		case "close":
-		case "cls":
-			break;
 	}
 })
 ipt.addEventListener("keyup", evt => {
