@@ -30,7 +30,7 @@ const FEATURES = ([ft, subft]) => {
 				"GLOSSARY": ["gls", "glos", "glossary", "idx", "index"],
 				"GRAMMAR": ["grm", "gram", "grammar", "stx", "sntx", "syntax"]
 			}
-			const lng_fts = Object.keys(lng_st)
+			const lng_fts = Object.keys(lng_lst)
 			const sub_feature = lng_fts.filter(lng_ft => lng_lst[lng_ft].includes(subft))
 			return [feature, sub_feature]
 		}
@@ -49,6 +49,8 @@ const state = {
 	// feature
 	left: "",
 	right: "",
+	main: "",
+	side: "",
 	focus: true
 }
 const action_keys = [...state.end_marks, ...state.end_trigger, "Enter"]
@@ -105,7 +107,9 @@ ipt.addEventListener("keydown", evt => {
 	switch (cmd) {
 		case "focus":
 		case "fcs":
-			break;
+			const [feature, sub_feature] = FEATURES(args)
+			if (state.main != feature) {}
+			document.requestFullscreen()
 		case "main":
 			break;
 		case "side":
