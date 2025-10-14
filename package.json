@@ -1,5 +1,5 @@
 {
-  "name": "creative-writing-browser-editor",
+  "name": "cwbe",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,11 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^7.1.2"
-  },
-  "dependencies": {
-    "animate.css": "^4.1.1",
-    "dexie": "^4.2.0",
-    "uuid": "^11.1.0"
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "svelte": "^5.39.6",
+    "vite": "^7.1.7"
   }
 }
