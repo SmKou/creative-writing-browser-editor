@@ -2,25 +2,31 @@ import editor from 'editor'
 import 'animate.css'
 import './style.css'
 
-const state = {
+const key_manager = {
 	last_key: "",
 	end_quote: false,
 	end_marks: [".", "?", "!"],
 	end_trigger: [" ", "\""],
-	shifted: false,
-	stash: {},
-	// orientation and feature
-	left: "",
-	right: "",
-	main: "",
-	side: ""
+	shifted: false
 }
-const action_keys = [...state.end_marks, ...state.end_trigger, "Enter"]
+const action_keys = [...key_manager.end_marks, ...key_manager.end_trigger, "Enter"]
 const end_action = (ipt) => {
-	state.last_key = ""
-	state.shifted = true
+	key_manager.last_key = ""
+	key_manager.shifted = true
 	ipt.focus()
 }
+
+const session = {
+	work: new Map(),
+	draft: new Map(),
+	outline: new Map(),
+	timeline: new Map(),
+	profile: new Map(),
+	language: new Map(),
+	history: new Map()
+}
+
+
 
 const ui = {
 	focus(feature, is_side = false) {
