@@ -1,22 +1,31 @@
 <script>
-	import Work from './lib/Work.svelte'
-
-	const screen_orientation = {
-		main: "",
+	const screen_orientation = $state({
+		main: {
+			title: "",
+			feature: "",
+			side: "left"
+		},
 		side: ""
-	}
+	})
 	// { id, title, feature, side }
-	const session = {}
-	const work = $state({
+	let layout = $derived.by(() => screen_orientation.main.side.includes("split")
+		? "splitscreen"
+		: screen_orientation.side
+		? "main-side"
+		: "main-none"
+	)
+
+	const current = $state({
 		id: "",
-		title: ""
+		title: "Creative Writing Browser editor",
+		type: "work"
 	})
 </script>
 
 <header>
-    <h1>{ work.title }</h1>
+    <h1>{ current.title }</h1>
 </header>
-<main class="main-none">
+<main class={layout}>
 	
 </main>
 <footer>
@@ -27,24 +36,67 @@
 	header {
 		width: 100%;
 		height: 48px;
+		border-bottom: 3px solid light-dark(var(--light), var(--dark));
 		display: flex;
 		align-items: center;
-		background: black;
+		background: light-dark(black, white);
 
 		h1 {
 			margin-left: 12px;
 			display: inline-block;
-			color: white;
+			color: light-dark(white, black);
+		}
+	}
+
+	main {
+		width: 100%;
+		height: calc(100% - 84px);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		article {
+			height: 100%;
+			padding: 8px;
+			overflow-y: scroll;
+			color: light-dark();
+			background: light-dark();
+		}
+
+		&.main-none {
+			article.main {
+				width: 80vw;
+				max-width: 960px;
+			}
+		}
+
+		&.main-side {
+			article.main {
+				width: 70vw;
+				max-width: 960px;
+			}
+			article.side {
+				width: 30vw;
+				max-width: 480px;
+			}
+		}
+
+		&.splitscreen {
+			article.split {
+				width: 50vw;
+				max-width: 720px;
+			}
 		}
 	}
 
 	footer {
 		width: 100%;
 		height: 36px;
+		border-top: 3px solid light-dark(var(--light), var(--dark));
 		display: flex;
 		justify-content: end;
-		color: gray;
-		background: black;
+		color: light-dark(gray, #242424);
+		background: light-dark(black, white);
 
 		p {
 			margin: 12px;
@@ -53,7 +105,7 @@
 
 			a {
 				margin: 0 8px;
-				color: var(--light);
+				color: var(--color);
 				text-decoration: none;
 			}
 			a:hover { color: white }
