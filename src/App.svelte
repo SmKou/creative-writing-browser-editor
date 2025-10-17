@@ -1,8 +1,9 @@
 <script>
+	import Dashboard from './lib/Dashboard'
 	const screen_orientation = $state({
 		main: {
 			title: "",
-			feature: "",
+			feature: "dashboard",
 			side: "left"
 		},
 		side: ""
@@ -26,8 +27,12 @@
     <h1>{ current.title }</h1>
 </header>
 <main class={layout}>
-	<article class="main left"></article>
-	<article class="side right"></article>
+	<article class="main">
+		<Dashboard is_side="false" />
+	</article>
+	{#if screen_orientation.side}
+	<article class="side"></article>
+	{/if}
 </main>
 <footer>
 	<p><a href="https://github.com/SmKou/creative-writing-browser-editor">Creative Writing Browser editor</a> © 2025 by <a href="https://github.com/SmKou">Sm Kou</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></p>
@@ -50,6 +55,7 @@
 	}
 
 	main {
+		position: relative;
 		width: 100%;
 		height: calc(100% - 84px);
 		display: flex;
@@ -62,6 +68,9 @@
 			overflow-y: scroll;
 			color: light-dark();
 			background: light-dark();
+
+			&.left { left: 0 }
+			&.right { right: 0 }
 		}
 
 		&.main-none {
