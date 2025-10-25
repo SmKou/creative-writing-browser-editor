@@ -1,38 +1,32 @@
 <script>
-	import Dashboard from './lib/Dashboard'
 	const screen_orientation = $state({
 		main: {
+			id: "",
 			title: "",
 			feature: "dashboard",
 			side: "left"
 		},
-		side: ""
+		side: {
+			id: "",
+			title: "",
+			feature: "dashboard"
+		}
 	})
-	// { id, title, feature, side }
 	let layout = $derived.by(() => screen_orientation.main.side.includes("split")
 		? "splitscreen"
-		: screen_orientation.side
+		: screen_orientation.side.feature
 		? "main-side"
 		: "main-none"
 	)
-
-	const current = $state({
-		id: "",
-		title: "Creative Writing Browser editor",
-		type: "work"
-	})
+	let main_class = $derived.by(() => `main ${screen_orientation.main.side}`)
 </script>
 
 <header>
     <h1>{ current.title }</h1>
 </header>
 <main class={layout}>
-	<article class="main">
-		<Dashboard is_side="false" />
-	</article>
-	{#if screen_orientation.side}
+	<article class={main_class}></article>
 	<article class="side"></article>
-	{/if}
 </main>
 <footer>
 	<p><a href="https://github.com/SmKou/creative-writing-browser-editor">Creative Writing Browser editor</a> © 2025 by <a href="https://github.com/SmKou">Sm Kou</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></p>
@@ -59,18 +53,32 @@
 		width: 100%;
 		height: calc(100% - 84px);
 		display: flex;
-		flex-direction: column;
 		align-items: center;
+
+		&:has(.main.right) {
+			flex-direction: row-reverse;
+		}
 
 		article {
 			height: 100%;
 			padding: 8px;
 			overflow-y: scroll;
-			color: light-dark();
-			background: light-dark();
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			column-gap: 16px;
+			color: light-dark(black, white);
+			background: light-dark(white, black);
+		}
 
-			&.left { left: 0 }
-			&.right { right: 0 }
+		@media (max-width: 800px) and (orientation: landscape) {
+			article { grid-template-columns: 1fr }
+		}
+
+		&.main-none, &.main-side {
+			article.main {
+				border-left: 1px solid var(--mid);
+				border-right: 1px solid var(--mid);
+			}
 		}
 
 		&.main-none {
