@@ -1,4 +1,5 @@
 <script>
+	import { work_data } from './storage'
 	const screen_orientation = $state({
 		main: {
 			id: "",
@@ -22,7 +23,7 @@
 </script>
 
 <header>
-    <h1>{ current.title }</h1>
+    <h1>{ work_data.title }</h1>
 </header>
 <main class={layout}>
 	<article class={main_class}></article>
@@ -36,7 +37,7 @@
 	header {
 		width: 100%;
 		height: 48px;
-		border-bottom: 3px solid light-dark(var(--light), var(--dark));
+		/*border-bottom: 3px solid light-dark(var(--light), var(--dark));*/
 		display: flex;
 		align-items: center;
 		background: light-dark(black, white);
@@ -75,9 +76,11 @@
 		}
 
 		&.main-none, &.main-side {
-			article.main {
-				border-left: 1px solid var(--mid);
-				border-right: 1px solid var(--mid);
+			.right {
+				border-left: 1px solid light-dark(black, white);
+			}
+			.left {
+				border-right: 1px solid light-dark(black, white);
 			}
 		}
 
@@ -111,7 +114,7 @@
 	footer {
 		width: 100%;
 		height: 36px;
-		border-top: 3px solid light-dark(var(--light), var(--dark));
+		/*border-top: 3px solid light-dark(var(--light), var(--dark));*/
 		display: flex;
 		justify-content: end;
 		color: light-dark(gray, #242424);
